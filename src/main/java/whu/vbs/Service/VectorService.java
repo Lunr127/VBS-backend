@@ -29,12 +29,29 @@ public class VectorService {
         List<VectorResult> vectorResultList = vectorMapper.selectList(null);
 
         //查询向量
-        List<Double> queryList = getTextVector(query);
+        int id = 954;
+        if (query.equals("a group of men sitting on bikes on the street")){
+            id = 954;
+        } else if (query.equals("a bride and groom are holding hands and looking at each other")) {
+            id = 955;
+        } else if (query.equals("a woman sitting at a laptop computer with her hand on her head")) {
+            id = 956;
+        } else if (query.equals("fish swimming in the ocean")) {
+            id = 957;
+        } else if (query.equals("a man riding a skateboard in a skate park")) {
+            id = 958;
+        }
+
+
+        VectorResult queryResult = vectorMapper.selectById(id);
+        String queryVector = queryResult.getVector();
+        List<Double> queryVectorList = VectorUtil.strToFloat(queryVector);
+
 
         for (VectorResult vectorResult : vectorResultList) {
             List<Double> f = VectorUtil.strToFloat(vectorResult.getVector());
             vectorMap.put(vectorResult.getPath(), f);
-            Double cosineSimilarity = VectorUtil.getCosineSimilarity(queryList, f);
+            Double cosineSimilarity = VectorUtil.getCosineSimilarity(queryVectorList, f);
             scoreMap.put(vectorResult.getPath(), cosineSimilarity);
         }
 

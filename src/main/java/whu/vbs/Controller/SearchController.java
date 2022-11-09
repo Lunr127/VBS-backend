@@ -29,13 +29,11 @@ public class SearchController {
         JSONObject jsonObject = JSONUtil.parseObj(request);
         String textInput = jsonObject.getStr("textInput");
         String radioSelect = jsonObject.getStr("radioSelect");
-
-        List<String> urlList = vectorService.searchByText(textInput);
-        List<String> topList = urlList.subList(0, 20);
-
-
         System.out.println(textInput);
         System.out.println(radioSelect);
+
+        List<String> urlList = vectorService.searchByText(textInput);
+        List<String> topList = urlList.subList(1, 100);
 
         return topList;
     }

@@ -33,7 +33,7 @@ public class SearchController {
         System.out.println(radioSelect);
 
         List<String> urlList = vectorService.searchByText(textInput);
-        List<String> topList = urlList.subList(1, 100);
+        List<String> topList = urlList.subList(0, 100);
 
         return topList;
     }

@@ -6,9 +6,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class VectorUtil {
-    public static List<Double> strToFloat(String str) {
+    public static List<Double> strToDouble(String str, int sub) {
         int length = str.length();
-        str = str.substring(1, length - 1);
+        str = str.substring(sub, length - sub);
         ArrayList<String> strings = new ArrayList<>(Arrays.asList(str.split("\\s+")));
         ArrayList<Double> f1 = new ArrayList<>(Arrays.asList(Convert.toDoubleArray(strings)));
         if (f1.get(0) == null) {

@@ -7,10 +7,7 @@ import whu.vbs.Mapper.VectorMapper;
 import whu.vbs.utils.VectorUtil;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class VectorService {
@@ -30,7 +27,7 @@ public class VectorService {
 
         for (VectorResult vectorResult : vectorResultList) {
             //取出在库图片的特征向量，并转成浮点数组
-            List<Double> vectorDoubleList = VectorUtil.strToFloat(vectorResult.getVector());
+            List<Double> vectorDoubleList = VectorUtil.strToDouble(vectorResult.getVector(), 1);
 
             //计算查询文本和图片的相似度得分
             Double cosineSimilarity = VectorUtil.getCosineSimilarity(queryVectorList, vectorDoubleList);
@@ -83,7 +80,7 @@ public class VectorService {
         }
 
         //将特征向量转化为浮点数组
-        queryVector = VectorUtil.strToFloat(String.valueOf(strQueryVector));
+        queryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector), 1);
         return queryVector;
     }
 

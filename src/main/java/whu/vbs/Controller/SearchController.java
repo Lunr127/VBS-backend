@@ -4,7 +4,6 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import whu.vbs.Service.SearchService;
 import whu.vbs.Service.VectorService;
 
 import java.util.List;
@@ -13,9 +12,6 @@ import java.util.List;
 @RequestMapping("search")
 @CrossOrigin
 public class SearchController {
-
-    @Autowired
-    SearchService searchService;
 
     @Autowired
     VectorService vectorService;

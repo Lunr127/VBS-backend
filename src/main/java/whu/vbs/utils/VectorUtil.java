@@ -10,11 +10,11 @@ public class VectorUtil {
         int length = str.length();
         str = str.substring(sub, length - sub);
         ArrayList<String> strings = new ArrayList<>(Arrays.asList(str.split("\\s+")));
-        ArrayList<Double> f1 = new ArrayList<>(Arrays.asList(Convert.toDoubleArray(strings)));
-        if (f1.get(0) == null) {
-            f1.remove(0);
+        ArrayList<Double> doubleArrayList = new ArrayList<>(Arrays.asList(Convert.toDoubleArray(strings)));
+        if (doubleArrayList.get(0) == null) {
+            doubleArrayList.remove(0);
         }
-        return f1;
+        return doubleArrayList;
     }
 
 
@@ -47,5 +47,15 @@ public class VectorUtil {
         //遍历集合，将排好序的键值对Entry<K,V>放入新的map并返回。
         list.forEach(ele -> finalMap.put(ele.getKey(), ele.getValue()));
         return finalMap;
+    }
+
+
+    public static void normalization(List<Double> list) {
+        List<Double> tmpList = list;
+        Collections.sort(tmpList);
+        Double min = tmpList.get(0);
+        Double max = tmpList.get(tmpList.size()-1);
+        double dValue = max - min;
+        list.replaceAll(i -> (i - min) / (dValue));
     }
 }

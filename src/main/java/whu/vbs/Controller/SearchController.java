@@ -5,6 +5,7 @@ import cn.hutool.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import whu.vbs.Service.VectorService;
+import whu.vbs.utils.PathUtils;
 
 import java.util.List;
 
@@ -29,6 +30,21 @@ public class SearchController {
         System.out.println(radioSelect);
 
         List<String> urlList = vectorService.searchByText(textInput);
+        List<String> topList = urlList.subList(0, 100);
+
+        return topList;
+    }
+
+    @RequestMapping(
+            value = "/feedback",
+            method = RequestMethod.POST
+    )
+    @ResponseBody
+    public List<String> feedback(@RequestBody String request) {
+        JSONObject jsonObject = JSONUtil.parseObj(request);
+        String path = jsonObject.getStr("path");
+        int idByPath = vectorService.getIdByPath(PathUtils.handlePath(path));
+        List<String> urlList = vectorService.positiveFeedBack(idByPath);
         List<String> topList = urlList.subList(0, 100);
 
         return topList;

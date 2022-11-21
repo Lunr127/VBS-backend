@@ -46,7 +46,10 @@ public class VectorService {
 
         //将路径存入urlList
         for (String path : sortMap.keySet()) {
-            path = "/" + path;
+            String video = path.substring(0, 5);
+            String shot = path.substring(5);
+
+            path = "/" + video + "/" + shot;
             urlList.add(path);
         }
 
@@ -54,18 +57,13 @@ public class VectorService {
     }
 
 
-    public List<String> positiveFeedBack(int id) {
-        List<String> urlList = new ArrayList<>();//查询结果的路径
-        Map<String, Double> feedBackScoreMap = new HashMap<>();//（路径，得分）反馈键值对
+    public void positiveFeedBack(int id) {
 
         VectorResult positiveFeedBackVectorResult = vectorMapper.selectById(id);
         List<Double> vectorListDouble = VectorUtil.strToDouble(positiveFeedBackVectorResult.getVector(), 1);
         String vectorListStr = vectorListDouble.toString();
         String vectorList = vectorListStr.substring(1, vectorListStr.length() - 1);
 
-
-        StringBuilder strQueryVector = new StringBuilder();
-        List<Double> feedBackVector = new ArrayList<>();
 
         //将反馈图片的概率得分 vectorCosineSimilarity 写入文件 cosineSimilarity.txt
         try {
@@ -85,7 +83,17 @@ public class VectorService {
         }
 
         //调用 python 函数得到新的查询向量
-        runPython("python E:\\Git\\towhee-main\\qir.py");
+        //runPython("python E:\\Git\\towhee-main\\qir.py");
+    }
+
+
+    public List<String> reRankByNewQuery(){
+
+        List<String> urlList = new ArrayList<>();//查询结果的路径
+        Map<String, Double> feedBackScoreMap = new HashMap<>();//（路径，得分）反馈键值对
+
+        StringBuilder strQueryVector = new StringBuilder();
+        List<Double> feedBackVector = new ArrayList<>();
 
         try {
             //读取特征向量文件
@@ -121,12 +129,14 @@ public class VectorService {
 
         //将路径存入urlList
         for (String path : sortMap.keySet()) {
-            path = "/" + path;
+            String video = path.substring(0, 5);
+            String shot = path.substring(5);
+
+            path = "/" + video + "/" + shot;
             urlList.add(path);
         }
 
         return urlList;
-
     }
 
 

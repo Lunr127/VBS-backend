@@ -40,12 +40,25 @@ public class SearchController {
             method = RequestMethod.POST
     )
     @ResponseBody
-    public List<String> feedback(@RequestBody String request) {
+    public void feedback(@RequestBody String request) {
         JSONObject jsonObject = JSONUtil.parseObj(request);
         String path = jsonObject.getStr("path");
+        System.out.println(path);
         int idByPath = vectorService.getIdByPath(PathUtils.handlePath(path));
-        List<String> urlList = vectorService.positiveFeedBack(idByPath);
+        vectorService.positiveFeedBack(idByPath);
+
+        System.out.println("feedback vector write success");
+    }
+
+    @RequestMapping(
+            value = "/reRank",
+            method = RequestMethod.POST
+    )
+    @ResponseBody
+    public List<String> reRank(@RequestBody String request) {
+        List<String> urlList = vectorService.reRankByNewQuery();
         List<String> topList = urlList.subList(0, 100);
+        System.out.println("reRank successfully");
 
         return topList;
     }

@@ -6,7 +6,7 @@ public class PathUtils {
         String root = substring.substring(4, 9);
 
         String[] split = substring.split("\\.");
-        String path = root + '\\' + split[0] + '.' + split[2];
+        String path = root + split[0] + '.' + split[2];
 
         return path;
     }

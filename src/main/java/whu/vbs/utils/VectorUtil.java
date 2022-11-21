@@ -17,6 +17,17 @@ public class VectorUtil {
         return doubleArrayList;
     }
 
+    public static List<Double> queryStrToDouble(String str){
+        int length = str.length();
+        str = str.substring(9, length - 3);
+        ArrayList<String> strings = new ArrayList<>(Arrays.asList(str.split(",")));
+        ArrayList<Double> doubleArrayList = new ArrayList<>(Arrays.asList(Convert.toDoubleArray(strings)));
+        if (doubleArrayList.get(0) == null) {
+            doubleArrayList.remove(0);
+        }
+        return doubleArrayList;
+    }
+
 
     public static double getCosineSimilarity(List<Double> vectorAs, List<Double> vectorBs) {
         double dividend = 0;

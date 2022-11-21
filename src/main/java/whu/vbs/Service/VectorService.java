@@ -2,8 +2,11 @@ package whu.vbs.Service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import whu.vbs.Entity.GrandTruth;
 import whu.vbs.Entity.VectorResult;
+import whu.vbs.Mapper.GrandTruthMapper;
 import whu.vbs.Mapper.VectorMapper;
+import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;
 
 import java.io.*;
@@ -18,6 +21,9 @@ public class VectorService {
 
     @Autowired
     VectorMapper vectorMapper;
+
+    @Autowired
+    GrandTruthMapper grandTruthMapper;
 
     public List<String> searchByText(String query) {
         List<String> urlList = new ArrayList<>();//查询结果的路径
@@ -39,7 +45,7 @@ public class VectorService {
 
             scoreList.add(cosineSimilarity);
         }
-        VectorUtil.normalization(scoreList);
+        // VectorUtil.normalization(scoreList);
 
         //将（路径，得分）的键值对按得分降序
         Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
@@ -58,6 +64,12 @@ public class VectorService {
 
 
     public void positiveFeedBack(int id) {
+
+        List<String> urlList = new ArrayList<>();//查询结果的路径
+        Map<String, Double> feedBackScoreMap = new HashMap<>();//（路径，得分）反馈键值对
+
+        StringBuilder strQueryVector = new StringBuilder();
+        List<Double> feedBackVector = new ArrayList<>();
 
         VectorResult positiveFeedBackVectorResult = vectorMapper.selectById(id);
         List<Double> vectorListDouble = VectorUtil.strToDouble(positiveFeedBackVectorResult.getVector(), 1);
@@ -140,16 +152,51 @@ public class VectorService {
     }
 
 
+    public void getGrandTruth(int query, List<String> pathList){
+        pathList.replaceAll(PathUtils::handleToGTPath);
+
+        Collections.sort(pathList);
+
+        List<GrandTruth> grandTruths = grandTruthMapper.selectList(null);
+        List<GrandTruth> queryGrandTruths = new ArrayList<>();
+
+        for (GrandTruth grandTruth : grandTruths) {
+            if (grandTruth.getQuery() == query) {
+                queryGrandTruths.add(grandTruth);
+            } else if (grandTruth.getQuery() > query) {
+                break;
+            }
+        }
+
+        int number = queryGrandTruths.size();
+        System.out.println("query " + query + " total true number = " + number);
+
+        int count = 0;
+
+        for (GrandTruth queryGrandTruth : queryGrandTruths) {
+            for (String s : pathList) {
+                if (Objects.equals(queryGrandTruth.getShot(), s)) {
+                    count++;
+                } else if (queryGrandTruth.getShot().compareTo(s) < 0) {
+                    break;
+                }
+            }
+        }
+
+        System.out.println("predict true number = " + count);
+    }
+
+
     public List<Double> getTextVector(String query) {
         writeQueryText(query);
-        runPython("python E:\\Git\\towhee-main\\getTextVector.py");
+        runPython("E:\\Git\\lavis2\\venv\\Scripts\\python.exe E:\\Git\\lavis2\\textExtractor.py");
         return readQueryVector();
     }
 
     public void writeQueryText(String query) {
         //将查询文本 query 写入文件 queryText.txt
         try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("E:\\Git\\towhee-main\\TextVector\\queryText.txt"));
+            BufferedWriter out = new BufferedWriter(new FileWriter("E:\\Git\\lavis2\\TextVector\\queryText.txt"));
             out.write(query);
             out.close();
         } catch (IOException ignored) {
@@ -162,7 +209,7 @@ public class VectorService {
         //读取特征向量文件
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("E:\\Git\\towhee-main\\TextVector\\textVector.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("E:\\Git\\lavis2\\TextVector\\textVector.txt"));
             String st;
             while ((st = br.readLine()) != null) {
                 strQueryVector.append(st);
@@ -172,7 +219,7 @@ public class VectorService {
         }
 
         //将特征向量转化为浮点数组
-        queryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector), 1);
+        queryVector = VectorUtil.queryStrToDouble(String.valueOf(strQueryVector));
         return queryVector;
     }
 

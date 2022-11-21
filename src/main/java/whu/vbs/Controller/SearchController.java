@@ -44,6 +44,7 @@ public class SearchController {
         JSONObject jsonObject = JSONUtil.parseObj(request);
         String path = jsonObject.getStr("path");
         System.out.println(path);
+        // path = /img/shot00001_105_RKF.98dcf3e8.png
         int idByPath = vectorService.getIdByPath(PathUtils.handlePath(path));
         vectorService.positiveFeedBack(idByPath);
 
@@ -58,6 +59,8 @@ public class SearchController {
     public List<String> reRank(@RequestBody String request) {
         List<String> urlList = vectorService.reRankByNewQuery();
         List<String> topList = urlList.subList(0, 100);
+        // int query = 1661;
+        // vectorService.getGrandTruth(query, topList);
         System.out.println("reRank successfully");
 
         return topList;

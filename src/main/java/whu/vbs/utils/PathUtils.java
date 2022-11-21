@@ -10,4 +10,12 @@ public class PathUtils {
 
         return path;
     }
+
+    public static String handleToGTPath(String prePath){
+        String substring = prePath.substring(7);
+        String[] split = substring.split("_");
+        String path = split[0] + '_' + split[1];
+
+        return path;
+    }
 }

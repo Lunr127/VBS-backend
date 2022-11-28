@@ -30,7 +30,7 @@ public class SearchController {
         System.out.println(radioSelect);
 
         List<String> urlList = vectorService.searchByText(textInput);
-        List<String> topList = urlList.subList(0, 100);
+        List<String> topList = urlList.subList(0, 50);
 
         return topList;
     }
@@ -44,7 +44,6 @@ public class SearchController {
         JSONObject jsonObject = JSONUtil.parseObj(request);
         String path = jsonObject.getStr("path");
         System.out.println(path);
-        // path = /img/shot00001_105_RKF.98dcf3e8.png
         int idByPath = vectorService.getIdByPath(PathUtils.handlePath(path));
         vectorService.positiveFeedBack(idByPath);
 

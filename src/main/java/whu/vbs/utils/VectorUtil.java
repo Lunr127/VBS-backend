@@ -29,6 +29,12 @@ public class VectorUtil {
     }
 
 
+    /**
+     * 得到两个向量的余弦相似度
+     * @param vectorAs
+     * @param vectorBs
+     * @return
+     */
     public static double getCosineSimilarity(List<Double> vectorAs, List<Double> vectorBs) {
         double dividend = 0;
         double divisorX = 0;
@@ -46,6 +52,14 @@ public class VectorUtil {
     }
 
 
+    /**
+     * 根据 map 的值排序
+     * 不改变传入 map 的顺序
+     * @param map
+     * @return
+     * @param <K>
+     * @param <V>
+     */
     public static <K extends Comparable, V extends Comparable> Map<K, V> sortMapByValues(Map<K, V> map) {
         //需要用LinkedHashMap排序
         HashMap<K, V> finalMap = new LinkedHashMap<K, V>();
@@ -61,12 +75,30 @@ public class VectorUtil {
     }
 
 
-    public static void normalization(List<Double> list) {
-        List<Double> tmpList = list;
-        Collections.sort(tmpList);
-        Double min = tmpList.get(0);
-        Double max = tmpList.get(tmpList.size()-1);
+    /**
+     * 将 map 的值做归一化
+     * @param map
+     */
+    public static void mapNormalization(Map<String, Double> map) {
+
+        double min = 1.0;
+        double max = 0.0;
+
+        for (String key: map.keySet()) {
+            double cos = map.get(key);
+            if (cos < min){
+                min = cos;
+            }
+            if (cos > max){
+                max = cos;
+            }
+        }
         double dValue = max - min;
-        list.replaceAll(i -> (i - min) / (dValue));
+
+        for (String key: map.keySet()) {
+            Double oldValue = map.get(key);
+            map.replace(key, (oldValue-min)/(dValue));
+        }
     }
+
 }

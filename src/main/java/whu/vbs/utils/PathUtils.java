@@ -13,8 +13,8 @@ public class PathUtils {
 
     public static String handleToGTPath(String prePath){
         String substring = prePath.substring(7);
-        String[] split = substring.split("_");
-        String path = split[0] + '_' + split[1];
+        int index = substring.indexOf('_', 11);
+        String path = substring.substring(1, index);
 
         return path;
     }

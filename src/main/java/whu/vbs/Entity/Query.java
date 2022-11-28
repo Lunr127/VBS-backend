@@ -3,7 +3,8 @@ package whu.vbs.Entity;
 import lombok.Data;
 
 @Data
-public class CsvTest {
-    private String id;
+public class Query {
+    private Integer id;
+    private String query;
     private String vector;
 }

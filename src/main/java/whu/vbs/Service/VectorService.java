@@ -27,6 +27,7 @@ public class VectorService {
 
     public List<String> searchByText(String query) {
         List<String> urlList = new ArrayList<>();//查询结果的路径
+
         vectorResultList = vectorMapper.selectList(null);//所有在库图片
 
         //得到查询文本的特征向量
@@ -45,19 +46,15 @@ public class VectorService {
 
             scoreList.add(cosineSimilarity);
         }
-        // VectorUtil.normalization(scoreList);
+
+        //（路径，得分）键值对 得分归一化
+        VectorUtil.mapNormalization(scoreMap);
 
         //将（路径，得分）的键值对按得分降序
         Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
 
         //将路径存入urlList
-        for (String path : sortMap.keySet()) {
-            String video = path.substring(0, 5);
-            String shot = path.substring(5);
-
-            path = "/" + video + "/" + shot;
-            urlList.add(path);
-        }
+        savePathToUrlList(urlList, sortMap);
 
         return urlList;
     }
@@ -65,37 +62,42 @@ public class VectorService {
 
     public void positiveFeedBack(int id) {
 
-        List<String> urlList = new ArrayList<>();//查询结果的路径
-        Map<String, Double> feedBackScoreMap = new HashMap<>();//（路径，得分）反馈键值对
+        List<Double> newQueryVector;
 
-        StringBuilder strQueryVector = new StringBuilder();
-        List<Double> feedBackVector = new ArrayList<>();
-
+        //根据 id 从数据库中得到反馈图片
         VectorResult positiveFeedBackVectorResult = vectorMapper.selectById(id);
+
+        //得到反馈图片的特征向量
         List<Double> vectorListDouble = VectorUtil.strToDouble(positiveFeedBackVectorResult.getVector(), 1);
-        String vectorListStr = vectorListDouble.toString();
-        String vectorList = vectorListStr.substring(1, vectorListStr.length() - 1);
 
-
-        //将反馈图片的概率得分 vectorCosineSimilarity 写入文件 cosineSimilarity.txt
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("E:\\Git\\towhee-main\\TextVector\\cosineSimilarity.txt"));
-            Double vectorCosineSimilarity = scoreMap.get(positiveFeedBackVectorResult.getPath());
-            out.write(vectorCosineSimilarity.toString());
-            out.close();
-        } catch (IOException ignored) {
-        }
-
-        //将反馈图片的特征向量 vectorList 写入文件 checkVector.txt
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("E:\\Git\\towhee-main\\TextVector\\checkVector.txt"));
-            out.write(vectorList);
-            out.close();
-        } catch (IOException ignored) {
-        }
+        //反馈图片的概率得分 vectorCosineSimilarity
+        Double vectorCosineSimilarity = scoreMap.get(positiveFeedBackVectorResult.getPath());
 
         //调用 python 函数得到新的查询向量
-        //runPython("python E:\\Git\\towhee-main\\qir.py");
+        try {
+            //执行 py 文件
+            String[] args1 = new String[] { "E:\\Git\\towhee-main\\venv\\Scripts\\python.exe", "E:\\Git\\towhee-main\\qir.py", vectorListDouble.toString(), vectorCosineSimilarity.toString() };
+            Process proc = Runtime.getRuntime().exec(args1);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            //读取特征向量文件
+            StringBuilder strQueryVector = new StringBuilder();
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                strQueryVector.append(line);
+            }
+            in.close();
+
+            //将特征向量转化为浮点数组
+            newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector),1);
+
+            proc.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 
 
@@ -140,13 +142,7 @@ public class VectorService {
         Map<String, Double> sortMap = VectorUtil.sortMapByValues(feedBackScoreMap);
 
         //将路径存入urlList
-        for (String path : sortMap.keySet()) {
-            String video = path.substring(0, 5);
-            String shot = path.substring(5);
-
-            path = "/" + video + "/" + shot;
-            urlList.add(path);
-        }
+        savePathToUrlList(urlList, sortMap);
 
         return urlList;
     }
@@ -188,51 +184,39 @@ public class VectorService {
 
 
     public List<Double> getTextVector(String query) {
-        writeQueryText(query);
-        runPython("E:\\Git\\lavis2\\venv\\Scripts\\python.exe E:\\Git\\lavis2\\textExtractor.py");
-        return readQueryVector();
-    }
+        List<Double> queryVector;
 
-    public void writeQueryText(String query) {
-        //将查询文本 query 写入文件 queryText.txt
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter("E:\\Git\\lavis2\\TextVector\\queryText.txt"));
-            out.write(query);
-            out.close();
-        } catch (IOException ignored) {
-        }
-    }
-
-    public List<Double> readQueryVector() {
-        StringBuilder strQueryVector = new StringBuilder();
-        List<Double> queryVector = new ArrayList<>();
-        //读取特征向量文件
-
-        try {
-            BufferedReader br = new BufferedReader(new FileReader("E:\\Git\\lavis2\\TextVector\\textVector.txt"));
-            String st;
-            while ((st = br.readLine()) != null) {
-                strQueryVector.append(st);
-            }
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+        //调用 python 函数得到查询文本的特征向量
+        String[] args1 = new String[] { "E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\textExtractor.py", query };
+        String strQueryVector = runPython(args1);
 
         //将特征向量转化为浮点数组
         queryVector = VectorUtil.queryStrToDouble(String.valueOf(strQueryVector));
+
         return queryVector;
     }
 
-    public void runPython(String command) {
-        //调用 python 函数得到查询文本的特征向量
+
+    public String runPython(String[] args) {
+        StringBuilder strVector = new StringBuilder();
+        //调用 python 函数
         try {
             //执行 py 文件
-            Process proc = Runtime.getRuntime().exec(command);
+            Process proc = Runtime.getRuntime().exec(args);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            //读取特征向量
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                strVector.append(line);
+            }
+            in.close();
+
             proc.waitFor();
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("exec " + command + " successfully");
+        return strVector.toString();
     }
 
 
@@ -245,5 +229,11 @@ public class VectorService {
             }
         }
         return id;
+    }
+
+    public void savePathToUrlList(List<String> urlList, Map<String, Double> sortMap){
+        for (String path : sortMap.keySet()) {
+            urlList.add(path);
+        }
     }
 }

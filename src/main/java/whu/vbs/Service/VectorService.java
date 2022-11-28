@@ -60,7 +60,8 @@ public class VectorService {
     public List<String> reRank(List<String> LikePaths, List<String> NotLikePaths){
         List<String> urlList = new ArrayList<>();
 
-        positiveFeedBack(LikePaths);
+        feedBack(LikePaths, 0);
+        feedBack(NotLikePaths, 1);
 
         //（路径，得分）键值对 得分归一化 并按得分降序
         Map<String, Double> sortMap = mapNormAndSort();
@@ -72,19 +73,16 @@ public class VectorService {
     }
 
 
-    public void positiveFeedBack(List<String> LikePaths) {
+    public void feedBack(List<String> Paths, int bool) {
 
-        //对每一个正反馈图片
-        for (String path : LikePaths) {
+        if (Paths.get(0).length() < 5){
+            return;
+        }
+
+        //对每一个反馈图片
+        for (String path : Paths) {
 
             //得到选中的反馈图片的向量
-//            String selectedVector = "";
-//            for (VectorResult vectorResult : vectorResultList) {
-//                if (Objects.equals(path, vectorResult.getPath())) {
-//                    selectedVector = VectorUtil.strToDouble(vectorResult.getVector(), 1).toString();
-//                    break;
-//                }
-//            }
             String selectedVector = pathMap.get(path).toString();
             selectedVector = selectedVector.substring(1, selectedVector.length()-1);
 
@@ -97,17 +95,16 @@ public class VectorService {
             List<Double> newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector),2);
 
             //更新所有图片的概率得分
-            reRankByNewQuery(newQueryVector);
+            reRankByNewQuery(newQueryVector, bool);
         }
     }
 
 
-    public void reRankByNewQuery(List<Double> queryVector) {
+    public void reRankByNewQuery(List<Double> queryVector, int bool) {
 
         for (String path: pathMap.keySet()) {
 
             //取出在库图片的特征向量，并转成浮点数组
-//            List<Double> vectorDoubleList = VectorUtil.strToDouble(vectorResult.getVector(), 1);
             List<Double> vectorDoubleList = pathMap.get(path);
 
             //计算查询文本和图片的相似度得分
@@ -117,7 +114,13 @@ public class VectorService {
             Double preCos = scoreMap.get(path);
 
             //更新得分
-            scoreMap.replace(path, preCos + cosineSimilarity);
+            if (bool == 0){
+                scoreMap.replace(path, preCos + cosineSimilarity);
+            }
+            else if (bool == 1){
+                scoreMap.replace(path, preCos - cosineSimilarity);
+            }
+
         }
     }
 

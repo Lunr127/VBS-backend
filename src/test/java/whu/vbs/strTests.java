@@ -2,15 +2,21 @@ package whu.vbs;
 
 import cn.hutool.core.convert.Convert;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import whu.vbs.Service.VectorService;
 import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.*;
 
 @SpringBootTest
 public class strTests {
+
 
     @Test
     void strTest(){
@@ -53,16 +59,8 @@ public class strTests {
 
     @Test
     void test3(){
-        String prePath = "/img/shot00001_68_RKF.f785a0a8.png";
-
-        String substring = prePath.substring(5);
-        String root = substring.substring(4, 9);
-
-        String[] split = substring.split("\\.");
-        String path = root + split[0] + '.' + split[2];
-
-        System.out.println(path);
 
     }
+
 
 }

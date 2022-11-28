@@ -14,10 +14,8 @@ import java.util.*;
 
 @Service
 public class VectorService {
-
-    List<Double> scoreList = new ArrayList<>();
     Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
-    List<VectorResult> vectorResultList = new ArrayList<>();//所有在库图片
+    Map<String, List<Double>> pathMap = new HashMap<>();//（路径，向量）键值对
 
     @Autowired
     VectorMapper vectorMapper;
@@ -27,6 +25,7 @@ public class VectorService {
 
     public List<String> searchByText(String query) {
         List<String> urlList = new ArrayList<>();//查询结果的路径
+        List<VectorResult> vectorResultList = new ArrayList<>();//所有在库图片
 
         vectorResultList = vectorMapper.selectList(null);//所有在库图片
 
@@ -44,107 +43,82 @@ public class VectorService {
             //建立（路径，得分）的键值对
             scoreMap.put(vectorResult.getPath(), cosineSimilarity);
 
-            scoreList.add(cosineSimilarity);
+            //建立（路径，得分）的键值对
+            pathMap.put(vectorResult.getPath(), vectorDoubleList);
         }
 
-        //（路径，得分）键值对 得分归一化
-        VectorUtil.mapNormalization(scoreMap);
-
-        //将（路径，得分）的键值对按得分降序
-        Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
+        //（路径，得分）键值对 得分归一化 并按得分降序
+        Map<String, Double> sortMap = mapNormAndSort();
 
         //将路径存入urlList
-        savePathToUrlList(urlList, sortMap);
+        urlList.addAll(sortMap.keySet());
 
         return urlList;
     }
 
 
-    public void positiveFeedBack(int id) {
+    public List<String> reRank(List<String> LikePaths, List<String> NotLikePaths){
+        List<String> urlList = new ArrayList<>();
 
-        List<Double> newQueryVector;
+        positiveFeedBack(LikePaths);
 
-        //根据 id 从数据库中得到反馈图片
-        VectorResult positiveFeedBackVectorResult = vectorMapper.selectById(id);
+        //（路径，得分）键值对 得分归一化 并按得分降序
+        Map<String, Double> sortMap = mapNormAndSort();
 
-        //得到反馈图片的特征向量
-        List<Double> vectorListDouble = VectorUtil.strToDouble(positiveFeedBackVectorResult.getVector(), 1);
+        //将路径存入urlList
+        urlList.addAll(sortMap.keySet());
 
-        //反馈图片的概率得分 vectorCosineSimilarity
-        Double vectorCosineSimilarity = scoreMap.get(positiveFeedBackVectorResult.getPath());
-
-        //调用 python 函数得到新的查询向量
-        try {
-            //执行 py 文件
-            String[] args1 = new String[] { "E:\\Git\\towhee-main\\venv\\Scripts\\python.exe", "E:\\Git\\towhee-main\\qir.py", vectorListDouble.toString(), vectorCosineSimilarity.toString() };
-            Process proc = Runtime.getRuntime().exec(args1);
-            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
-
-            //读取特征向量文件
-            StringBuilder strQueryVector = new StringBuilder();
-            String line = null;
-            while ((line = in.readLine()) != null) {
-                strQueryVector.append(line);
-            }
-            in.close();
-
-            //将特征向量转化为浮点数组
-            newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector),1);
-
-            proc.waitFor();
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-
+        return urlList;
     }
 
 
-    public List<String> reRankByNewQuery(){
+    public void positiveFeedBack(List<String> LikePaths) {
 
-        List<String> urlList = new ArrayList<>();//查询结果的路径
-        Map<String, Double> feedBackScoreMap = new HashMap<>();//（路径，得分）反馈键值对
+        //对每一个正反馈图片
+        for (String path : LikePaths) {
 
-        StringBuilder strQueryVector = new StringBuilder();
-        List<Double> feedBackVector = new ArrayList<>();
+            //得到选中的反馈图片的向量
+//            String selectedVector = "";
+//            for (VectorResult vectorResult : vectorResultList) {
+//                if (Objects.equals(path, vectorResult.getPath())) {
+//                    selectedVector = VectorUtil.strToDouble(vectorResult.getVector(), 1).toString();
+//                    break;
+//                }
+//            }
+            String selectedVector = pathMap.get(path).toString();
+            selectedVector = selectedVector.substring(1, selectedVector.length()-1);
 
-        try {
-            //读取特征向量文件
-            BufferedReader br = new BufferedReader(new FileReader("E:\\Git\\towhee-main\\TextVector\\newQueryVector.txt"));
-            String st;
-            while ((st = br.readLine()) != null) {
-                strQueryVector.append(st);
-            }
-            //将特征向量转化为浮点数组
-            feedBackVector = VectorUtil.strToDouble(String.valueOf(strQueryVector), 2);
-        } catch (IOException e) {
-            e.printStackTrace();
+            //反馈图片的概率得分 vectorCosineSimilarity
+            Double selectedCos = scoreMap.get(path);
+
+            //调用 python 函数得到新的查询向量
+            String[] args1 = new String[] { "E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qir.py", selectedVector, selectedCos.toString() };
+            String strQueryVector = runPython(args1);
+            List<Double> newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector),2);
+
+            //更新所有图片的概率得分
+            reRankByNewQuery(newQueryVector);
         }
+    }
 
-        int index = 0;
-        for (VectorResult vectorResult : vectorResultList) {
+
+    public void reRankByNewQuery(List<Double> queryVector) {
+
+        for (String path: pathMap.keySet()) {
+
             //取出在库图片的特征向量，并转成浮点数组
-            List<Double> vectorDoubleList = VectorUtil.strToDouble(vectorResult.getVector(), 1);
+//            List<Double> vectorDoubleList = VectorUtil.strToDouble(vectorResult.getVector(), 1);
+            List<Double> vectorDoubleList = pathMap.get(path);
 
             //计算查询文本和图片的相似度得分
-            Double cosineSimilarity = VectorUtil.getCosineSimilarity(feedBackVector, vectorDoubleList);
+            Double cosineSimilarity = VectorUtil.getCosineSimilarity(queryVector, vectorDoubleList);
 
-            scoreList.set(index, scoreList.get(index) + cosineSimilarity);
+            //原先得分
+            Double preCos = scoreMap.get(path);
 
-            //建立（路径，得分）的键值对
-            feedBackScoreMap.put(vectorResult.getPath(), scoreList.get(index));
-            index++;
+            //更新得分
+            scoreMap.replace(path, preCos + cosineSimilarity);
         }
-
-
-        //将（路径，得分）的键值对按得分降序
-        Map<String, Double> sortMap = VectorUtil.sortMapByValues(feedBackScoreMap);
-
-        //将路径存入urlList
-        savePathToUrlList(urlList, sortMap);
-
-        return urlList;
     }
 
 
@@ -220,20 +194,11 @@ public class VectorService {
     }
 
 
-    public int getIdByPath(String path) {
-        int id = 1;
-        for (VectorResult vectorResult : vectorResultList) {
-            if (Objects.equals(path, vectorResult.getPath())) {
-                id = vectorResult.getId();
-                break;
-            }
-        }
-        return id;
-    }
+    public Map<String, Double> mapNormAndSort(){
+        //（路径，得分）键值对 得分归一化
+        VectorUtil.mapNormalization(scoreMap);
 
-    public void savePathToUrlList(List<String> urlList, Map<String, Double> sortMap){
-        for (String path : sortMap.keySet()) {
-            urlList.add(path);
-        }
+        //将（路径，得分）的键值对按得分降序
+        return VectorUtil.sortMapByValues(scoreMap);
     }
 }

@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import whu.vbs.Service.VectorService;
 import whu.vbs.utils.PathUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -36,31 +38,20 @@ public class SearchController {
     }
 
     @RequestMapping(
-            value = "/feedback",
-            method = RequestMethod.POST
-    )
-    @ResponseBody
-    public void feedback(@RequestBody String request) {
-        JSONObject jsonObject = JSONUtil.parseObj(request);
-        String path = jsonObject.getStr("path");
-        System.out.println(path);
-        int idByPath = vectorService.getIdByPath(PathUtils.handlePath(path));
-        vectorService.positiveFeedBack(idByPath);
-
-        System.out.println("feedback vector write success");
-    }
-
-    @RequestMapping(
             value = "/reRank",
             method = RequestMethod.POST
     )
     @ResponseBody
     public List<String> reRank(@RequestBody String request) {
-        List<String> urlList = vectorService.reRankByNewQuery();
-        List<String> topList = urlList.subList(0, 100);
-        // int query = 1661;
-        // vectorService.getGrandTruth(query, topList);
-        System.out.println("reRank successfully");
+        JSONObject jsonObject = JSONUtil.parseObj(request);
+
+        List<String> LikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("LikePaths"));
+        System.out.println("LikePaths = " + LikePaths);
+        List<String> NotLikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("NotLikePaths"));
+        System.out.println("NotLikePaths = " + NotLikePaths);
+
+        List<String> urlList = vectorService.reRank(LikePaths, NotLikePaths);
+        List<String> topList = urlList.subList(0, 50);
 
         return topList;
     }

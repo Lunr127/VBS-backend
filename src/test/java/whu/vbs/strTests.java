@@ -1,9 +1,14 @@
 package whu.vbs;
 
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.text.csv.CsvReader;
+import cn.hutool.core.text.csv.CsvUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import whu.vbs.Entity.GrandTruthResult;
+import whu.vbs.Entity.VectorResult;
 import whu.vbs.Service.VectorService;
 import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;
@@ -59,7 +64,11 @@ public class strTests {
 
     @Test
     void test3(){
-
+        CsvReader reader = CsvUtil.getReader();
+        String csvPath = "D:\\Download\\VBSDataset\\datacsv\\vector_result.csv";
+        List<VectorResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), VectorResult.class);
+        System.out.println("load successfully");
+        System.out.println(result.get(0));
     }
 
 

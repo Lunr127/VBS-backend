@@ -6,15 +6,12 @@ import cn.hutool.core.text.csv.CsvUtil;
 import org.apache.ibatis.jdbc.ScriptRunner;
 import whu.vbs.Entity.CsvTest;
 import whu.vbs.Entity.GrandTruth;
-import whu.vbs.Entity.VectorTest;
-import whu.vbs.Mapper.CsvTestMapper;
 import whu.vbs.Mapper.GrandTruthMapper;
 import whu.vbs.Mapper.VectorMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import whu.vbs.Entity.VectorResult;
-import whu.vbs.Mapper.VectorTestMapper;
 import whu.vbs.utils.VectorUtil;
 
 
@@ -33,12 +30,6 @@ class VbsApplicationTests {
 
     @Autowired
     private GrandTruthMapper grandTruthMapper;
-
-    @Autowired
-    private CsvTestMapper csvTestMapper;
-    
-    @Autowired
-    private VectorTestMapper vectorTestMapper;
 
     @Test
     void contextLoads() {
@@ -358,15 +349,6 @@ class VbsApplicationTests {
                     csvTest.setVector(csvTest.getVector().substring(index1+1, index2+1));
                     s.append("('").append(csvTest.getId()).append("','").append(csvTest.getVector()).append("'),");
                 }
-
-
-//                for (CsvTest csvTest: result){
-//                    int index1 = csvTest.getVector().indexOf('[');
-//                    int index2 = csvTest.getVector().indexOf(']');
-//                    csvTest.setId(csvTest.getId().substring(1));
-//                    csvTest.setVector(csvTest.getVector().substring(index1+1, index2+1));
-//                    s.append("('").append(csvTest.getId()).append("','").append(csvTest.getVector()).append("'),");
-//                }
                 int index = s.lastIndexOf(",");
                 String sql = s.substring(0, index);
                 try {
@@ -460,19 +442,6 @@ class VbsApplicationTests {
         int index = vectorResult.getVector().indexOf(']');
         vectorResult.setVector(vectorResult.getVector().substring(0, index+1));
         System.out.println(vectorResult.getVector());
-    }
-    
-    @Test
-    void test5(){
-        List<VectorTest> vectorTests = vectorTestMapper.selectList(null);
-        for (VectorTest vectorTest : vectorTests) {
-            vectorTest.setPath(vectorTest.getPath().substring(1));
-            String vector = vectorTest.getVector();
-            int index1 = vector.indexOf('[');
-            int index2 = vector.indexOf(']');
-            vectorTest.setVector(vectorTest.getVector().substring(index1+1, index2+1));
-            vectorTestMapper.updateById(vectorTest);
-        }
     }
 
 }

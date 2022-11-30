@@ -1,15 +1,12 @@
 package whu.vbs;
 
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.text.csv.CsvData;
 import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import whu.vbs.Entity.*;
-import whu.vbs.Mapper.FeedBackMapper;
 import whu.vbs.Mapper.GrandTruthMapper;
 import whu.vbs.Mapper.QueryMapper;
 import whu.vbs.utils.PathUtils;
@@ -29,9 +26,6 @@ public class grandTruthTests {
 
     @Autowired
     QueryMapper queryMapper;
-
-    @Autowired
-    FeedBackMapper feedBackMapper;
 
 
     @Test
@@ -180,7 +174,7 @@ public class grandTruthTests {
         //调用 python 函数得到新的查询向量
         try {
             //执行 py 文件
-            String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qir.py", String.valueOf(vectorCosineSimilarity), vectorList};
+            String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qmr.py", String.valueOf(vectorCosineSimilarity), vectorList};
             Process proc = Runtime.getRuntime().exec(args1);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 

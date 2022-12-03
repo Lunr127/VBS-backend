@@ -30,22 +30,24 @@ public class grandTruthTests {
 
     @Test
     void test1() {
-        Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
-        List<String> urlList = new ArrayList<>();//查询结果的路径
 
-        int topK = 4000;
+
+        int topK = 200;
         int total = 0;
 
 
         int query;
 
         for (query = 1661; query <= 1680; query++) {
+
             String queryNumber = Integer.toString(query).substring(1);
             CsvReader reader = CsvUtil.getReader();
             String csvPath = "D:\\Download\\VBSDataset\\grand_truth\\" + queryNumber + ".csv";
             List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
 
+            Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
             List<String> pathList = new ArrayList<>();
+            List<String> urlList = new ArrayList<>();//查询结果的路径
 
             Query queryVector = queryMapper.selectById(query - 1000);
             List<Double> queryVectorList = VectorUtil.strToDouble(queryVector.getVector(), 1);
@@ -72,9 +74,7 @@ public class grandTruthTests {
 //            System.out.println(urlList);
 
 
-            List<String> topList = pathList.subList(0, topK);
-
-            topList.replaceAll(PathUtils::handleToGTPath);
+            List<String> topList = urlList.subList(0, topK);
 
             Collections.sort(topList);
 
@@ -207,7 +207,6 @@ public class grandTruthTests {
             Map<String, Double> scoreMap = new HashMap<>();
 
 
-
             for (int i = 0; i < querys.length; i++) {
 
                 String queryNumber = Integer.toString(query).substring(1);
@@ -303,19 +302,18 @@ public class grandTruthTests {
     }
 
     @Test
-    void labelTest(){
-        Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
-        List<String> urlList = new ArrayList<>();//查询结果的路径
-        Map<String, List<Double>> pathMap = new HashMap<>();//（路径，向量）键值对
-
-
+    void labelTest() {
         int topK = 200;
         int total = 0;
-
 
         int query;
 
         for (query = 1661; query <= 1680; query++) {
+
+            Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
+            List<String> urlList = new ArrayList<>();//查询结果的路径
+            Map<String, List<Double>> pathMap = new HashMap<>();//（路径，向量）键值对
+
             String queryNumber = Integer.toString(query).substring(1);
             CsvReader reader = CsvUtil.getReader();
             String csvPath = "D:\\Download\\VBSDataset\\grand_truth\\" + queryNumber + ".csv";
@@ -344,26 +342,26 @@ public class grandTruthTests {
             }
 
             String str = getLabelsByQuery(queryVector.getQuery());
-            List<String> labels = new ArrayList<>(Arrays.asList(str.substring(1, str.length()-1).split("'")));
+            List<String> labels = new ArrayList<>(Arrays.asList(str.substring(1, str.length() - 1).split("'")));
             labels.removeIf(s -> s.length() < 2);
             System.out.println(labels);
 
             for (String label : labels) {
                 List<Double> labelVectorList = getTextVector(label);
 
-                for (String key:scoreMap.keySet()){
+                for (String key : scoreMap.keySet()) {
                     List<Double> vectorDoubleList = pathMap.get(key);
 
                     //计算查询文本和图片的相似度得分
                     Double cosineSimilarity = VectorUtil.getCosineSimilarity(labelVectorList, vectorDoubleList);
 
+
                     Double oldValue = scoreMap.get(key);
 
-                    //建立（路径，得分）的键值对
-                    scoreMap.replace(key, oldValue + cosineSimilarity);
+                    //更新得分
+                    scoreMap.replace(key, oldValue + cosineSimilarity * 0.02);
                 }
             }
-
 
             //将（路径，得分）的键值对按得分降序
             Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
@@ -374,11 +372,7 @@ public class grandTruthTests {
 //            System.out.println(urlList);
 
 
-            List<String> topList = pathList.subList(0, topK);
-
-            topList.replaceAll(PathUtils::handleToGTPath);
-
-            Collections.sort(topList);
+            List<String> topList = urlList.subList(0, topK);
 
             List<GrandTruth> grandTruths = grandTruthMapper.selectList(null);
             List<GrandTruth> queryGrandTruths = new ArrayList<>();
@@ -400,9 +394,6 @@ public class grandTruthTests {
                 for (String s : topList) {
                     if (Objects.equals(queryGrandTruth.getShot(), s)) {
                         count++;
-                        //System.out.println(s);
-                    } else if (queryGrandTruth.getShot().compareTo(s) < 0) {
-                        break;
                     }
                 }
             }
@@ -419,12 +410,12 @@ public class grandTruthTests {
 
 
     @Test
-    String getLabelsByQuery(String query){
+    String getLabelsByQuery(String query) {
         StringBuilder strLabels = new StringBuilder();
         //调用 python 函数
         try {
             //执行 py 文件
-            String[] args1 = new String[] { "E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\keyphraseExtract.py", query };
+            String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\keyphraseExtract.py", query};
             Process proc = Runtime.getRuntime().exec(args1);
             BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
@@ -446,7 +437,7 @@ public class grandTruthTests {
         List<Double> queryVector;
 
         //调用 python 函数得到查询文本的特征向量
-        String[] args1 = new String[] { "E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\textExtractor.py", query };
+        String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\textExtractor.py", query};
         String strQueryVector = runPython(args1);
 
         //将特征向量转化为浮点数组

@@ -13,10 +13,9 @@ import whu.vbs.Service.VectorService;
 import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.lang.reflect.Array;
+import java.nio.file.Files;
 import java.util.*;
 
 @SpringBootTest
@@ -24,7 +23,7 @@ public class strTests {
 
 
     @Test
-    void strTest(){
+    void strTest() {
         String s = "/img/shot00017_82_RKF.d7f59eba.png";
         String substring = s.substring(5);
         String root = substring.substring(4, 9);
@@ -37,7 +36,7 @@ public class strTests {
     }
 
     @Test
-    void test1(){
+    void test1() {
         String s = "/00020/shot00020_9_RKF.png";
         String substring = s.substring(7);
         String[] split = substring.split("_");
@@ -48,7 +47,7 @@ public class strTests {
 
 
     @Test
-    void test2(){
+    void test2() {
         List<String> pathList = new ArrayList<>();
         pathList.add("/00019/shot00019_9_RKF.png");
         pathList.add("/00018/shot00018_9_RKF.png");
@@ -63,7 +62,7 @@ public class strTests {
 
 
     @Test
-    void test3(){
+    void test3() {
         CsvReader reader = CsvUtil.getReader();
         String csvPath = "D:\\Download\\VBSDataset\\datacsv\\vector_result.csv";
         List<VectorResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), VectorResult.class);
@@ -71,5 +70,25 @@ public class strTests {
         System.out.println(result.get(0));
     }
 
+    @Test
+    void test4() throws IOException {
+        String shot = "./05062/shot05062_133_RKF.png";
+        int index = shot.indexOf("_", 18);
+        shot = shot.substring(8, index);
+        System.out.println(shot);
+        String path = "F:\\VBSDataset\\V3C1\\thumbnails\\" + shot.substring(4, 9) + "\\" + shot + ".png" ;
+        File file = new File(path);
+        InputStream in = Files.newInputStream(file.toPath());
+        byte[] data = null;
+        try {
+            data = new byte[in.available()];
+            in.read(data);
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
+        Base64.Encoder encoder = Base64.getEncoder();
+        System.out.println(encoder.encodeToString(data));
+    }
 }

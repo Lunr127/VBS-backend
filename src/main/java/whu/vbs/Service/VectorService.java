@@ -1,21 +1,30 @@
 package whu.vbs.Service;
 
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.text.csv.CsvReader;
+import cn.hutool.core.text.csv.CsvUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import whu.vbs.Entity.GrandTruth;
+import whu.vbs.Entity.GrandTruthResult;
+import whu.vbs.Entity.Query;
 import whu.vbs.Entity.VectorResult;
 import whu.vbs.Mapper.GrandTruthMapper;
+import whu.vbs.Mapper.QueryMapper;
 import whu.vbs.Mapper.VectorMapper;
 import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.*;
 
 @Service
 public class VectorService {
     Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
     Map<String, List<Double>> pathMap = new HashMap<>();//（路径，向量）键值对
+
+    int topK = 50;
 
     @Autowired
     VectorMapper vectorMapper;
@@ -57,7 +66,7 @@ public class VectorService {
     }
 
 
-    public List<String> reRank(List<String> LikePaths, List<String> NotLikePaths){
+    public List<Map<String, String>> reRank(List<String> LikePaths, List<String> NotLikePaths){
         List<String> urlList = new ArrayList<>();
 
         feedBack(LikePaths, 0);
@@ -69,7 +78,17 @@ public class VectorService {
         //将路径存入urlList
         urlList.addAll(sortMap.keySet());
 
-        return urlList;
+        List<String> topList = urlList.subList(0, topK);
+
+        List<Map<String, String>> base64List = new ArrayList<>();
+        for (String shot : topList) {
+            Map<String, String> base64Map = new HashMap<>();// (base64，路径)键值对
+            String base64 = "data:image/png;base64,"+ imgToBase64(shot);
+            base64Map.put("shot", shot);
+            base64Map.put("base64", base64);
+            base64List.add(base64Map);
+        }
+        return base64List;
     }
 
 
@@ -81,6 +100,8 @@ public class VectorService {
 
         //对每一个反馈图片
         for (String path : Paths) {
+
+            System.out.println(path);
 
             //得到选中的反馈图片的向量
             String selectedVector = pathMap.get(path).toString();
@@ -115,48 +136,13 @@ public class VectorService {
 
             //更新得分
             if (bool == 0){
-                scoreMap.replace(path, preCos + cosineSimilarity);
+                scoreMap.replace(path, preCos + 0.2 * cosineSimilarity);
             }
             else if (bool == 1){
-                scoreMap.replace(path, preCos - cosineSimilarity);
+                scoreMap.replace(path, preCos - 0.2 * cosineSimilarity);
             }
 
         }
-    }
-
-
-    public void getGrandTruth(int query, List<String> pathList){
-        pathList.replaceAll(PathUtils::handleToGTPath);
-
-        Collections.sort(pathList);
-
-        List<GrandTruth> grandTruths = grandTruthMapper.selectList(null);
-        List<GrandTruth> queryGrandTruths = new ArrayList<>();
-
-        for (GrandTruth grandTruth : grandTruths) {
-            if (grandTruth.getQuery() == query) {
-                queryGrandTruths.add(grandTruth);
-            } else if (grandTruth.getQuery() > query) {
-                break;
-            }
-        }
-
-        int number = queryGrandTruths.size();
-        System.out.println("query " + query + " total true number = " + number);
-
-        int count = 0;
-
-        for (GrandTruth queryGrandTruth : queryGrandTruths) {
-            for (String s : pathList) {
-                if (Objects.equals(queryGrandTruth.getShot(), s)) {
-                    count++;
-                } else if (queryGrandTruth.getShot().compareTo(s) < 0) {
-                    break;
-                }
-            }
-        }
-
-        System.out.println("predict true number = " + count);
     }
 
 
@@ -203,5 +189,130 @@ public class VectorService {
 
         //将（路径，得分）的键值对按得分降序
         return VectorUtil.sortMapByValues(scoreMap);
+    }
+
+
+    @Autowired
+    QueryMapper queryMapper;
+
+    public List<Map<String, String>> topKTest(String queryStr){
+        int query = 1680;
+        if (queryStr.equals("a hang glider floating in the sky on a sunny day")){
+            query = 1661;
+        } else if (queryStr.equals("a woman wearing sleeveless top")) {
+            query = 1662;
+        }
+        System.out.println(query);
+
+
+        String queryNumber = Integer.toString(query).substring(1);
+        CsvReader reader = CsvUtil.getReader();
+        String csvPath = "D:\\Download\\VBSDataset\\grand_truth\\" + queryNumber + ".csv";
+        List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
+
+//        Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
+        List<String> pathList = new ArrayList<>();
+        List<String> urlList = new ArrayList<>();//查询结果的路径
+
+        Query queryVector = queryMapper.selectById(query - 1000);
+        List<Double> queryVectorList = VectorUtil.strToDouble(queryVector.getVector(), 1);
+
+
+        for (GrandTruthResult grandTruthResult : result) {
+            pathList.add(grandTruthResult.getShot());
+
+            //特征向量，并转成浮点数组
+            List<Double> vectorDoubleList = VectorUtil.strToDouble(grandTruthResult.getVector(), 1);
+
+            //计算查询文本和图片的相似度得分
+            Double cosineSimilarity = VectorUtil.getCosineSimilarity(queryVectorList, vectorDoubleList);
+
+            //建立（路径，得分）的键值对
+            scoreMap.put(PathUtils.handleToGTPath(grandTruthResult.getShot()), cosineSimilarity);
+
+            //建立（路径，得分）的键值对
+            pathMap.put(PathUtils.handleToGTPath(grandTruthResult.getShot()), vectorDoubleList);
+        }
+        //将（路径，得分）的键值对按得分降序
+        Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
+
+
+        //将路径存入urlList
+        savePathToUrlList(urlList, sortMap);
+
+        List<String> topList = urlList.subList(0, topK);
+//        List<String> base64List = new ArrayList<>();
+        List<Map<String, String>> base64List = new ArrayList<>();
+        for (String shot : topList) {
+            Map<String, String> base64Map = new HashMap<>();// (base64，路径)键值对
+            String base64 = "data:image/png;base64,"+ imgToBase64(shot);
+            base64Map.put("shot", shot);
+            base64Map.put("base64", base64);
+            base64List.add(base64Map);
+        }
+        return base64List;
+
+    }
+
+    public void savePathToUrlList(List<String> urlList, Map<String, Double> sortMap) {
+        for (String path : sortMap.keySet()) {
+            urlList.add(path);
+        }
+    }
+
+
+    public String imgToBase64(String shot){
+//        int index = shot.indexOf("_", 18);
+//        shot = shot.substring(8, index);
+        String path = "F:\\VBSDataset\\V3C1\\thumbnails\\" + shot.substring(4, 9) + "\\" + shot + ".png" ;
+        File file = new File(path);
+
+        byte[] data = null;
+        try {
+            InputStream in = Files.newInputStream(file.toPath());
+            data = new byte[in.available()];
+            in.read(data);
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(data);
+    }
+
+
+    public int getGrandTruth(List<String> topList, int query){
+
+        topList.replaceAll(PathUtils::handleToGTPath);
+        Collections.sort(topList);
+
+        List<GrandTruth> grandTruths = grandTruthMapper.selectList(null);
+        List<GrandTruth> queryGrandTruths = new ArrayList<>();
+
+        for (GrandTruth grandTruth : grandTruths) {
+            if (grandTruth.getQuery() == query) {
+                queryGrandTruths.add(grandTruth);
+            } else if (grandTruth.getQuery() > query) {
+                break;
+            }
+        }
+
+        int number = queryGrandTruths.size();
+        System.out.println("query " + query + " total true count = " + number);
+
+        int count = 0;
+
+        for (GrandTruth queryGrandTruth : queryGrandTruths) {
+            for (String s : topList) {
+                if (Objects.equals(queryGrandTruth.getShot(), s)) {
+                    count++;
+                } else if (queryGrandTruth.getShot().compareTo(s) < 0) {
+                    break;
+                }
+            }
+        }
+
+        return count;
     }
 }

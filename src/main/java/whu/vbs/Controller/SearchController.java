@@ -24,17 +24,17 @@ public class SearchController {
             method = RequestMethod.POST
     )
     @ResponseBody
-    public List<String> text(@RequestBody String request) {
+    public String text(@RequestBody String request) {
         JSONObject jsonObject = JSONUtil.parseObj(request);
         String textInput = jsonObject.getStr("textInput");
         String radioSelect = jsonObject.getStr("radioSelect");
         System.out.println(textInput);
         System.out.println(radioSelect);
 
-        List<String> urlList = vectorService.searchByText(textInput);
-        List<String> topList = urlList.subList(0, 50);
+//        List<String> urlList = vectorService.searchByText(textInput);
+//        List<String> topList = urlList.subList(0, 50);
 
-        return topList;
+        return JSONUtil.toJsonStr(vectorService.topKTest(textInput));
     }
 
     @RequestMapping(
@@ -42,18 +42,16 @@ public class SearchController {
             method = RequestMethod.POST
     )
     @ResponseBody
-    public List<String> reRank(@RequestBody String request) {
+    public String reRank(@RequestBody String request) {
         JSONObject jsonObject = JSONUtil.parseObj(request);
 
+//        List<String> LikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("LikePaths"));
         List<String> LikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("LikePaths"));
         System.out.println("LikePaths = " + LikePaths);
         List<String> NotLikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("NotLikePaths"));
         System.out.println("NotLikePaths = " + NotLikePaths);
 
-        List<String> urlList = vectorService.reRank(LikePaths, NotLikePaths);
-        List<String> topList = urlList.subList(0, 50);
-
-        return topList;
+        return JSONUtil.toJsonStr(vectorService.reRank(LikePaths, NotLikePaths));
     }
 
 }

@@ -31,7 +31,7 @@ public class PathUtils {
             }
             String path = pathList.get(i);
             path = path.substring(1, path.length() - 1);
-            pathList.set(i, PathUtils.handlePath(path));
+            pathList.set(i, path);
         }
 
         return pathList;

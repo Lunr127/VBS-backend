@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import whu.vbs.Entity.*;
+import whu.vbs.Mapper.AvsQueryMapper;
 import whu.vbs.Mapper.GrandTruthMapper;
 import whu.vbs.Mapper.QueryMapper;
 import whu.vbs.utils.PathUtils;
@@ -32,22 +33,59 @@ public class grandTruthTests {
     List<String> pathList = new ArrayList<>();
 
 
+    Map<Integer, String[]> likeShotsMap = new HashMap<>();
+    Map<Integer, String[]> notLikeShotsMap = new HashMap<>();
+
+    void setLikeShotsMap(){
+        likeShotsMap.put(1661, new String[]{"shot00057_130", "shot00410_374", "shot00847_59", "shot01564_23", "shot03072_62"});
+        likeShotsMap.put(1662, new String[]{"shot00015_42", "shot00058_106", "shot00479_95", "shot01604_103", "shot04054_48"});
+        likeShotsMap.put(1663, new String[]{"shot00127_36", "shot01597_105", "shot02546_16", "shot02853_101", "shot02853_74"});
+        likeShotsMap.put(1664, new String[]{"shot01613_162", "shot01613_2", "shot01745_92", "shot01887_53", "shot04096_397"});
+        likeShotsMap.put(1665, new String[]{"shot00535_672", "shot01352_97", "shot01531_1", "shot03840_240", "shot04021_14"});
+        likeShotsMap.put(1666, new String[]{"shot00143_30", "shot00278_69", "shot00378_39", "shot00167_201", "shot00143_5"});
+        likeShotsMap.put(1667, new String[]{"shot00319_171", "shot00505_7", "shot00505_6", "shot00505_58", "shot00812_14"});
+        likeShotsMap.put(1668, new String[]{"shot00152_132", "shot00181_139", "shot00585_314", "shot00918_192", "shot01512_54"});
+        likeShotsMap.put(1669, new String[]{"shot00182_6", "shot00580_10", "shot00785_114", "shot01170_16", "shot01170_25"});
+        likeShotsMap.put(1670, new String[]{"shot00007_25", "shot00114_36", "shot00562_75", "shot00573_123", "shot00007_88"});
+
+    }
+
+    void setNotLikeShotsMap(){
+        notLikeShotsMap.put(1661, new String[]{"shot01507_151", "shot07168_10", "shot03340_131", "shot01146_55", "shot00615_98"});
+        notLikeShotsMap.put(1662, new String[]{"shot00354_68", "shot00464_189", "shot00479_108", "shot01138_33", "shot03961_56"});
+        notLikeShotsMap.put(1663, new String[]{"shot00342_11", "shot00342_9", "shot01380_22", "shot01743_100", "shot02768_80"});
+        notLikeShotsMap.put(1664, new String[]{"shot01237_155", "shot05262_16", "shot06839_5", "shot07168_77", "shot06775_135"});
+        notLikeShotsMap.put(1665, new String[]{"shot00158_50", "shot00464_14", "shot00750_635", "shot00896_139", "shot02499_118"});
+        notLikeShotsMap.put(1666, new String[]{"shot00181_75", "shot00378_166", "shot00347_75", "shot00332_32", "shot00248_22"});
+        notLikeShotsMap.put(1667, new String[]{"shot00015_11", "shot00028_11", "shot00036_514", "shot00036_516", "shot00036_524"});
+        notLikeShotsMap.put(1668, new String[]{"shot00036_48", "shot00054_1", "shot00197_41", "shot00193_604", "shot00743_42"});
+        notLikeShotsMap.put(1669, new String[]{"shot00217_187", "shot00669_51", "shot00056_119", "shot00087_129", "shot00159_86"});
+        notLikeShotsMap.put(1670, new String[]{"shot00573_26", "shot00573_295", "shot00389_439", "shot00056_151", "shot00114_39"});
+    }
+
+
+
     @Test
     void initialSortingTest() {
 
+        setLikeShotsMap();
+        setNotLikeShotsMap();
 
-        int topK = 200;
+        int topK = 1000;
         int total = 0;
-
 
         int query;
         int count;
 
-        for (query = 1668; query <= 1668; query++) {
+        for (query = 1661; query <= 1670; query++) {
+
+            scoreMap = new HashMap<>();
+            vectorMap = new HashMap<>();
+            pathList = new ArrayList<>();
 
             String queryNumber = Integer.toString(query).substring(1);
             CsvReader reader = CsvUtil.getReader();
-            String csvPath = "D:\\Download\\VBSDataset\\grand_truth\\" + queryNumber + ".csv";
+            String csvPath = "D:\\Download\\VBSDataset\\grand_truth_top10000\\" + queryNumber + ".csv";
             List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
 
 
@@ -92,41 +130,44 @@ public class grandTruthTests {
             System.out.println();
 
 
-            String[] shots = new String[]{"shot00152_64", "shot01513_90", "shot01898_59", "shot02497_123", "shot04871_23"};
-
+            String[] shots = likeShotsMap.get(query);
             for (String shot : shots) {
-                //qmr
-                qmr(shot);
-                VectorUtil.mapNormalization(scoreMap);
-                //将（路径，得分）的键值对按得分降序
-                Map<String, Double> reRankSortMap = VectorUtil.sortMapByValues(scoreMap);
-
-
-                //将路径存入urlList
-                List<String> reRankUrlList = new ArrayList<>();//查询结果的路径
-                savePathToUrlList(reRankUrlList, reRankSortMap);
-                List<String> reRandTopList = reRankUrlList.subList(0, topK);
-
-                count = getGTMatch(reRandTopList, query);
-                total += count;
-
-                System.out.println("top K = " + topK);
-                System.out.println("predict true count = " + count);
-                System.out.println("precision@" + topK + " = " + ((double) count / topK));
-                System.out.println();
+                qmr(shot);  //qmr
+                //Rocchio(shot, 0);   //Rocchio
             }
 
+//            shots = notLikeShotsMap.get(query);
+//            for (String shot : shots) {
+//                //qmr(shot);  //qmr
+//                Rocchio(shot, 1);   //Rocchio
+//            }
 
+            VectorUtil.mapNormalization(scoreMap);
+            //将（路径，得分）的键值对按得分降序
+            Map<String, Double> reRankSortMap = VectorUtil.sortMapByValues(scoreMap);
+
+
+            //将路径存入urlList
+            List<String> reRankUrlList = new ArrayList<>();//查询结果的路径
+            savePathToUrlList(reRankUrlList, reRankSortMap);
+            List<String> reRandTopList = reRankUrlList.subList(0, topK);
+
+            count = getGTMatch(reRandTopList, query);
+            total += count;
+
+            System.out.println("top K = " + topK);
+            System.out.println("predict true count = " + count);
+            System.out.println("precision@" + topK + " = " + ((double) count / topK));
+            System.out.println();
         }
 
-        System.out.println("mean precision@" + topK + " = " + ((double) total) / topK / 20);
+//        System.out.println("mean precision@" + topK + " = " + ((double) total) / topK / 20);
 
 
     }
 
     int getGTMatch(List<String> topList, int query) {
         Collections.sort(topList);
-        System.out.println(topList);
 
         List<GrandTruth> grandTruths = grandTruthMapper.selectList(null);
         List<GrandTruth> queryGrandTruths = new ArrayList<>();
@@ -158,16 +199,6 @@ public class grandTruthTests {
         return count;
     }
 
-
-    @Test
-    void queryVectorTest() {
-        List<Query> queryList = queryMapper.selectList(null);
-        for (Query query : queryList) {
-            query.setVector(queryTextTest(query.getQuery()).toString());
-            queryMapper.updateById(query);
-        }
-    }
-
     @Test
     List<Double> queryTextTest(String query) {
         List<Double> queryVector = new ArrayList<>();
@@ -189,7 +220,7 @@ public class grandTruthTests {
             in.close();
 
             //将特征向量转化为浮点数组
-            queryVector = VectorUtil.queryStrToDouble(String.valueOf(strQueryVector));
+            queryVector = VectorUtil.avsQueryStrToDouble(String.valueOf(strQueryVector));
 
             proc.waitFor();
         } catch (IOException | InterruptedException e) {
@@ -524,6 +555,22 @@ public class grandTruthTests {
             double my_lambda = alpha_d * alpha_dt + beta_d * beta_dt;
             double my_probability = Math.pow(my_lambda * alpha_dt, 2);
             scoreMap.replace(path, my_probability * cosineSimilarity);
+        }
+    }
+
+    void Rocchio(String shot, int bool){
+
+        List<Double> shotVector = vectorMap.get(shot);
+
+        for (String path : pathList) {
+            List<Double> pathVector = vectorMap.get(path);
+
+            double cosineSimilarity = VectorUtil.getCosineSimilarity(shotVector, pathVector);
+            if (bool == 0){
+                scoreMap.replace(path, scoreMap.get(path) + 0.5 * cosineSimilarity);
+            } else if (bool == 1) {
+                scoreMap.replace(path, scoreMap.get(path) - 0.1 * cosineSimilarity);
+            }
         }
     }
 

@@ -29,6 +29,18 @@ public class VectorUtil {
     }
 
 
+    public static List<Double> avsQueryStrToDouble(String str){
+        int length = str.length();
+        str = str.substring(9, length - 20);
+        ArrayList<String> strings = new ArrayList<>(Arrays.asList(str.split(",")));
+        ArrayList<Double> doubleArrayList = new ArrayList<>(Arrays.asList(Convert.toDoubleArray(strings)));
+        if (doubleArrayList.get(0) == null) {
+            doubleArrayList.remove(0);
+        }
+        return doubleArrayList;
+    }
+
+
     /**
      * 得到两个向量的余弦相似度
      * @param vectorAs

@@ -2,13 +2,20 @@ package whu.vbs;
 
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.file.FileWriter;
+import cn.hutool.core.io.resource.ResourceUtil;
+import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
 import cn.hutool.core.text.csv.CsvWriter;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import whu.vbs.Entity.GrandTruthResult;
+import whu.vbs.Entity.VideoDescriptionVector;
+import whu.vbs.Mapper.VideoDescriptionVectorMapper;
+import whu.vbs.utils.VectorUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,5 +63,45 @@ public class csvTest {
 
 
 
+    }
+
+
+    @Autowired
+    VideoDescriptionVectorMapper videoDescriptionVectorMapper;
+
+
+    @Test
+    void VDVTest(){
+        CsvReader reader = CsvUtil.getReader();
+        String csvPath = "D:\\Download\\VBSDataset\\videoDescriptionVector.csv";
+        List<VideoDescriptionVector> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), VideoDescriptionVector.class);
+
+        for (int i = 0; i < result.size(); i++) {
+            int j = i + 1;
+            String videoId = "";
+            if (j < 10) {
+                videoId = "0000" + j;
+            } else if (j < 100) {
+                videoId = "000" + j;
+            } else if (j < 1000) {
+                videoId = "00" + j;
+            } else if (j < 10000) {
+                videoId = "0" + j;
+            } else if (j < 100000) {
+                videoId = String.valueOf(j);
+            }
+
+            VideoDescriptionVector videoDescriptionVector = result.get(i);
+            videoDescriptionVector.setVideoId(videoId);
+            List<Double> list = VectorUtil.avsQueryStrToDouble(videoDescriptionVector.getVector());
+            if (list.size() == 257){
+                list.remove(256);
+            }
+            videoDescriptionVector.setVector(list.toString());
+            videoDescriptionVectorMapper.insert(videoDescriptionVector);
+
+            result.set(i, videoDescriptionVector);
+
+        }
     }
 }

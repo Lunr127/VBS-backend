@@ -1,6 +1,7 @@
 package whu.vbs.utils;
 
 import cn.hutool.core.convert.Convert;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -111,6 +112,36 @@ public class VectorUtil {
             Double oldValue = map.get(key);
             map.replace(key, (oldValue-min)/(dValue));
         }
+    }
+
+
+    public static double getPearsonsCorrelation(List<Double> vectorAs, List<Double> vectorBs){
+        PearsonsCorrelation p = new PearsonsCorrelation();
+        Double[] xD = new Double[vectorBs.size()];
+        vectorAs.toArray(xD);
+        double[] x = new double[xD.length];
+        for (int i = 0; i < xD.length; i++){
+            x[i] = xD[i];
+        }
+
+        Double[] yD = new Double[vectorBs.size()];
+        vectorAs.toArray(yD);
+        double[] y = new double[yD.length];
+        for (int i = 0; i < yD.length; i++){
+            y[i] = yD[i];
+        }
+
+        return p.correlation(x, y);
+    }
+
+    public static double getDot(List<Double> vectorAs, List<Double> vectorBs){
+        int index = 0;
+        double sum = 0;
+        for (double vectorA : vectorAs) {
+            sum = sum + vectorA * vectorBs.get(index);
+            index++;
+        }
+        return sum;
     }
 
 }

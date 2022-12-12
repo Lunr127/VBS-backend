@@ -4,6 +4,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import whu.vbs.Service.AvsService;
 import whu.vbs.Service.VectorService;
 import whu.vbs.utils.PathUtils;
 
@@ -76,6 +77,9 @@ public class SearchController {
     @Autowired
     VectorService vectorService;
 
+    @Autowired
+    AvsService avsService;
+
     @RequestMapping(
             value = "/text",
             method = RequestMethod.POST
@@ -99,7 +103,7 @@ public class SearchController {
 //        List<String> urlList = vectorService.searchByText(textInput);
 //        List<String> topList = urlList.subList(0, 50);
 
-        return JSONUtil.toJsonStr(vectorService.topKTest(textInput));
+        return JSONUtil.toJsonStr(avsService.topKTest(textInput));
     }
 
     @RequestMapping(
@@ -115,13 +119,20 @@ public class SearchController {
 //        setNotLikeShotsMap();
 
 
-//        List<String> LikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("LikePaths"));
         List<String> LikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("LikePaths"));
-        System.out.println("LikePaths = " + LikePaths);
+//        System.out.println("LikePaths = " + LikePaths);
+//        for (String likePath : LikePaths) {
+//            System.out.print("\"" + likePath + "\"" + ", ");
+//        }
+//        System.out.println();
         List<String> NotLikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("NotLikePaths"));
-        System.out.println("NotLikePaths = " + NotLikePaths);
+//        System.out.println("NotLikePaths = " + NotLikePaths);
+//        for (String notLikePath : NotLikePaths) {
+//            System.out.print("\"" + notLikePath + "\"" + ", ");
+//        }
+//        System.out.println();
 
-        return JSONUtil.toJsonStr(vectorService.reRank(LikePaths, NotLikePaths));
+        return JSONUtil.toJsonStr(avsService.reRank(LikePaths, NotLikePaths));
     }
 
 }

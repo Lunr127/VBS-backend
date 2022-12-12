@@ -9,10 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import whu.vbs.Entity.*;
-import whu.vbs.Mapper.AvsGrandTruthMapper;
-import whu.vbs.Mapper.AvsQueryMapper;
-import whu.vbs.Mapper.GrandTruthMapper;
-import whu.vbs.Mapper.MasterShotBoundaryMapper;
+import whu.vbs.Mapper.*;
 import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;
 
@@ -32,6 +29,9 @@ public class avsTest {
     GrandTruthMapper grandTruthMapper;
 
     @Autowired
+    VideoDescriptionVectorMapper videoDescriptionVectorMapper;
+
+    @Autowired
     MasterShotBoundaryMapper msbMapper;
 
     @Autowired
@@ -47,7 +47,7 @@ public class avsTest {
     Map<Integer, String[]> likeShotsMap = new HashMap<>();
     Map<Integer, String[]> notLikeShotsMap = new HashMap<>();
 
-    void setLikeShotsMap(){
+    void setLikeShotsMap() {
         likeShotsMap.put(1, new String[]{"shot04804_635", "shot04804_1075", "shot00956_15", "shot00151_87", "shot07466_11", "shot04804_896", "shot01172_285", "shot00602_129", "shot00298_90", "shot06522_48", "shot06624_32", "shot00602_148", "shot02673_158", "shot03169_107", "shot01090_427", "shot00148_38", "shot00487_107", "shot03918_623", "shot03699_3", "shot04804_197", "shot00290_25", "shot02960_89", "shot04867_488", "shot00602_133", "shot03699_2", "shot07420_22", "shot02061_18", "shot00148_42", "shot06566_163", "shot01253_91", "shot06248_56", "shot01253_93", "shot00148_52", "shot05200_155", "shot02347_4", "shot04255_3", "shot01071_255", "shot00602_86", "shot04989_99", "shot04695_135", "shot01253_35", "shot06533_278", "shot04804_251", "shot05469_2", "shot02826_100", "shot04619_195", "shot04804_1238", "shot03900_146", "shot01843_96", "shot03900_226"});
         likeShotsMap.put(2, new String[]{"shot07435_51", "shot07435_52", "shot07435_37", "shot05459_35", "shot07435_50", "shot00352_19", "shot07435_53", "shot07435_41", "shot02100_332", "shot07435_43", "shot02100_310", "shot05329_25", "shot07049_4", "shot02100_253", "shot04539_61", "shot02940_29", "shot06738_51", "shot07435_32", "shot05074_75", "shot06639_182", "shot07049_3", "shot05459_86", "shot00352_105", "shot05459_33", "shot00352_97", "shot01638_14", "shot07435_33", "shot00915_70", "shot00072_23", "shot02174_199", "shot03119_63", "shot06524_27", "shot03588_95", "shot03638_93", "shot07435_34", "shot07435_54", "shot05510_245", "shot05074_81", "shot06767_22", "shot07435_42", "shot07182_48", "shot05074_99", "shot00034_101", "shot07056_17", "shot00815_69", "shot00387_115", "shot00915_49", "shot05459_61", "shot00248_37", "shot02890_27"});
         likeShotsMap.put(4, new String[]{"shot03805_83", "shot04551_77", "shot05543_90", "shot05291_107", "shot05291_8", "shot06196_288", "shot01544_21", "shot06954_96", "shot04820_12", "shot06196_449", "shot04551_110", "shot04966_7", "shot04551_18", "shot04551_120", "shot04551_86", "shot05756_29", "shot04551_142", "shot03312_130", "shot04551_127", "shot07001_43", "shot05427_22", "shot07381_111", "shot00318_147", "shot05824_114", "shot02160_62", "shot04551_101", "shot03751_14", "shot04551_115", "shot02446_5", "shot03231_9", "shot05995_55", "shot05543_39", "shot04423_267", "shot05543_75", "shot04423_295", "shot04551_123", "shot05995_54", "shot07155_35", "shot05995_68", "shot05995_66", "shot05543_119", "shot04777_27", "shot04777_22", "shot05785_134", "shot05543_84", "shot04423_638", "shot02723_9", "shot04423_708", "shot05291_44", "shot04091_216"});
@@ -56,7 +56,7 @@ public class avsTest {
         likeShotsMap.put(10, new String[]{"shot02285_9", "shot06195_4", "shot02645_97", "shot01559_92", "shot00668_16", "shot02763_184", "shot04052_50", "shot06007_158", "shot06007_163", "shot06007_513", "shot06007_80", "shot06188_306", "shot05522_39", "shot03719_28", "shot05133_34", "shot05734_178", "shot01559_7", "shot04979_20", "shot00481_46", "shot07389_29", "shot04979_21", "shot05522_46", "shot02957_295", "shot05734_179", "shot04175_15", "shot03011_313", "shot06523_192", "shot00172_43", "shot02285_7", "shot00172_40", "shot00172_39", "shot06007_510", "shot05195_139", "shot01577_116", "shot05795_72", "shot02763_75", "shot04096_425", "shot02075_65", "shot06188_304", "shot00481_48", "shot07051_109", "shot06007_293", "shot04780_664", "shot06007_511", "shot06188_305", "shot04123_26", "shot05522_85", "shot05587_148", "shot02143_78", "shot02381_146"});
     }
 
-    void setNotLikeShotsMap(){
+    void setNotLikeShotsMap() {
         notLikeShotsMap.put(1, new String[]{"shot04804_1166", "shot02684_21", "shot04804_428", "shot04892_80", "shot04804_773", "shot05511_5", "shot02347_51", "shot00654_364", "shot05511_4", "shot04804_744", "shot02684_46", "shot01967_4", "shot01404_383", "shot05368_95", "shot01498_11", "shot02347_50", "shot07466_39", "shot02426_40", "shot02684_115", "shot02347_23", "shot01617_145", "shot01386_104", "shot01880_20", "shot03626_3", "shot06248_323", "shot06808_910", "shot07043_90", "shot06674_68", "shot03319_668", "shot03319_716", "shot02347_16", "shot05511_8", "shot03001_165", "shot04804_1328", "shot06077_4", "shot01292_229", "shot05368_123", "shot01951_54", "shot03319_152", "shot02347_2", "shot05368_121", "shot00058_76", "shot02347_75", "shot01951_52", "shot02684_89", "shot06248_336", "shot06248_441", "shot07265_30", "shot06547_90", "shot05703_31"});
         notLikeShotsMap.put(2, new String[]{"shot05550_32", "shot07054_35", "shot01883_174", "shot06121_37", "shot04429_46", "shot06121_53", "shot05507_51", "shot05507_50", "shot06311_48", "shot06614_10", "shot04583_71", "shot02351_204", "shot05707_59", "shot00487_81", "shot00750_611", "shot00256_79", "shot00352_119", "shot03916_130", "shot06121_36", "shot03263_100", "shot02876_100", "shot05071_44", "shot04120_2", "shot02444_13", "shot02351_303", "shot05115_55", "shot06121_173", "shot06771_6", "shot07321_46", "shot01904_47", "shot06034_259", "shot03055_248", "shot05459_87", "shot03082_83", "shot03415_89", "shot00320_26", "shot01477_20", "shot05371_96", "shot04841_11", "shot02412_86", "shot04539_48", "shot02168_8", "shot03394_6", "shot01423_75", "shot01477_77", "shot06103_17", "shot06624_22", "shot06771_122", "shot02100_106", "shot03919_164"});
         notLikeShotsMap.put(4, new String[]{"shot02511_16", "shot07049_6", "shot02928_63", "shot03916_212", "shot04447_50", "shot00535_65", "shot03642_438", "shot06004_67", "shot07148_56", "shot02497_306", "shot03858_20", "shot01782_82", "shot06325_283", "shot07148_61", "shot02697_208", "shot02286_79", "shot01278_126", "shot00087_10", "shot03037_47", "shot04752_92", "shot05509_301", "shot00110_20", "shot02845_58", "shot03805_107", "shot04036_96", "shot01144_11", "shot02846_38", "shot01416_85", "shot04551_95", "shot05260_67", "shot06456_12", "shot03087_42", "shot03982_44", "shot04423_270", "shot02286_55", "shot01144_219", "shot05543_45", "shot03007_94", "shot03055_126", "shot05111_28", "shot05614_86", "shot03536_159", "shot02572_87", "shot07056_66", "shot04765_141", "shot07373_12", "shot00369_360", "shot01145_80", "shot01395_45", "shot01445_120"});
@@ -127,14 +127,13 @@ public class avsTest {
         setNotLikeShotsMap();
 
 
-
         int query;
         int count;
 
         List<MasterShotBoundary> masterShotBoundaryList = msbMapper.selectList(null);
 
         int breakCount = 0;
-        for (int index = 0; index < masterShotBoundaryList.size(); index++){
+        for (int index = 0; index < masterShotBoundaryList.size(); index++) {
             for (int i = 1; i <= 7475; i++) {
                 String videoId = "";
                 if (i < 10) {
@@ -150,21 +149,21 @@ public class avsTest {
                 }
 
                 List<MasterShotBoundary> msbByVideoId = new ArrayList<>();
-                while (Objects.equals(masterShotBoundaryList.get(index).getVideoId(), videoId)){
+                while (Objects.equals(masterShotBoundaryList.get(index).getVideoId(), videoId)) {
                     msbByVideoId.add(masterShotBoundaryList.get(index));
                     index++;
                 }
                 msbMap.put(videoId, msbByVideoId);
                 breakCount = i;
             }
-            if (breakCount == 7475){
+            if (breakCount == 7475) {
                 break;
             }
         }
 
         for (query = 1; query <= 10; query++) {
 
-            if (query == 3 || query == 8 || query == 7 || query == 9){
+            if (query == 3 || query == 8 || query == 7 || query == 9) {
                 continue;
             }
 
@@ -217,23 +216,47 @@ public class avsTest {
             System.out.println();
 
 
-
 //            String[] likeShots = likeShotsMap.get(query);
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query)).subList(0, 5);
 //            for (String shot : likeShots) {
 //                qmr(shot);  //qmr
-//                //Rocchio(shot, 0);   //Rocchio
+//                Rocchio(shot, 0);   //Rocchio
 //            }
-//
-//            String[] notLikeShots = notLikeShotsMap.get(query);
+
+//            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query)).subList(0, 5);
 //            for (String shot : notLikeShots) {
 //                Rocchio(shot, 1);   //Rocchio
 //            }
 
-            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
-            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query));
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query)).subList(0, 5);
+//            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query)).subList(0, 5);
+//            qir(likeShots, 0);
+//            qir(notLikeShots, 1);
 
-            qir(notLikeShots, 1);
-            qir(likeShots, 0);
+
+//            String str = getLabelsByQuery(queryVector.getQuery());
+//            List<String> labels = new ArrayList<>(Arrays.asList(str.substring(1, str.length() - 1).split("'")));
+//            labels.removeIf(s -> s.length() < 2);
+//            for (String label : labels) {
+//                List<Double> labelVectorList = getTextVector(label);
+//
+//                for (String key : scoreMap.keySet()) {
+//                    List<Double> vectorDoubleList = pathMap.get(key);
+//
+//                    //计算查询文本和图片的相似度得分
+//                    double cosineSimilarity = VectorUtil.getCosineSimilarity(labelVectorList, vectorDoubleList);
+//
+//                    Double oldValue = scoreMap.get(key);
+//
+//                    //更新得分
+//                    scoreMap.replace(key, oldValue + cosineSimilarity * 0.1);
+//                }
+//            }
+
+//            qprp();
+
+            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
+            cvts(likeShots, queryVectorList);
 
             VectorUtil.mapNormalization(scoreMap);
             //将（路径，得分）的键值对按得分降序
@@ -243,9 +266,9 @@ public class avsTest {
             //将路径存入urlList
             List<String> reRankUrlList = new ArrayList<>();//查询结果的路径
             savePathToUrlList(reRankUrlList, reRankSortMap);
-            List<String> reRandTopList = reRankUrlList.subList(0, topK);
+            List<String> reRankTopList = reRankUrlList.subList(0, topK);
 
-            count = getGTMatch(reRandTopList, query);
+            count = getGTMatch(reRankTopList, query);
 
             System.out.println("top K = " + topK);
             System.out.println("predict true count = " + count);
@@ -286,7 +309,7 @@ public class avsTest {
         for (String shot : topList) {
             String videoId = shot.substring(4, 9);
             int shotId = Integer.parseInt(shot.substring(10)) - 1;
-            if (shotId > 100){
+            if (shotId > 100) {
                 shotId -= 1;
             }
             List<MasterShotBoundary> msbByVideoId = msbMap.get(videoId);
@@ -308,7 +331,7 @@ public class avsTest {
     }
 
 
-    void Rocchio(String shot, int bool){
+    void Rocchio(String shot, int bool) {
 
         List<Double> shotVector = pathMap.get(shot);
 
@@ -316,7 +339,7 @@ public class avsTest {
             List<Double> pathVector = pathMap.get(path);
 
             double cosineSimilarity = VectorUtil.getCosineSimilarity(shotVector, pathVector);
-            if (bool == 0){
+            if (bool == 0) {
                 scoreMap.replace(path, scoreMap.get(path) + 0.5 * cosineSimilarity);
             } else if (bool == 1) {
                 scoreMap.replace(path, scoreMap.get(path) - 0.1 * cosineSimilarity);
@@ -343,7 +366,7 @@ public class avsTest {
 
     public void qir(List<String> Paths, int bool) {
 
-        if (Paths.get(0).length() < 5){
+        if (Paths.get(0).length() < 5) {
             return;
         }
 
@@ -352,15 +375,15 @@ public class avsTest {
 
             //得到选中的反馈图片的向量
             String selectedVector = pathMap.get(path).toString();
-            selectedVector = selectedVector.substring(1, selectedVector.length()-1);
+            selectedVector = selectedVector.substring(1, selectedVector.length() - 1);
 
             //反馈图片的概率得分 vectorCosineSimilarity
             Double selectedCos = scoreMap.get(path);
 
             //调用 python 函数得到新的查询向量
-            String[] args1 = new String[] { "E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qir.py", selectedVector, selectedCos.toString() };
+            String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qir.py", selectedVector, selectedCos.toString()};
             String strQueryVector = runPython(args1);
-            List<Double> newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector),2);
+            List<Double> newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector), 2);
 
             //更新所有图片的概率得分
             reRankByNewQuery(newQueryVector, bool);
@@ -369,9 +392,66 @@ public class avsTest {
         }
     }
 
+    public void qprp() {
+        Map<String, Double> reRankMap = new HashMap<>();
+        List<String> tmpList = pathList;
+
+        for (int i = tmpList.size() - 1; i >= 0; i--) {
+            for (int j = 0; j < i; j++) {
+                double interferenceSum = 0;
+                for (int k = 0; k < pathList.size(); k++) {
+                    interferenceSum = interferenceSum -
+                            Math.sqrt(scoreMap.get(tmpList.get(j)) * scoreMap.get(tmpList.get(k))) * VectorUtil.getPearsonsCorrelation(pathMap.get(tmpList.get(j)), pathMap.get(tmpList.get(k)));
+                }
+                reRankMap.put(tmpList.get(i), interferenceSum + scoreMap.get(tmpList.get(i)));
+            }
+        }
+
+//        for (String i : pathList) {
+//            double interferenceSum = 0;
+//            for (String j : pathList) {
+//                interferenceSum = interferenceSum -
+//                        Math.sqrt(scoreMap.get(i) * scoreMap.get(j)) * VectorUtil.getPearsonsCorrelation(pathMap.get(i), pathMap.get(j));
+//            }
+//            reRankMap.put(i, scoreMap.get(i) + interferenceSum);
+//        }
+        scoreMap = reRankMap;
+
+    }
+
+    public void cvts(List<String> shots, List<Double> queryVector) {
+        double r1 = 1.0;
+        double r2 = 0.2;
+        double c = r2 / shots.size();
+        Map<String, Double> reRankMap = new HashMap<>();
+
+
+        List<VideoDescriptionVector> videoDescriptionVectors = videoDescriptionVectorMapper.selectList(null);
+        Map<String, List<Double>> vectorVisualMap = new HashMap<>();
+        for (VideoDescriptionVector videoDescriptionVector : videoDescriptionVectors) {
+            String videoId = videoDescriptionVector.getVideoId();
+            List<Double> vector = VectorUtil.strToDouble(videoDescriptionVector.getVector(), 1);
+            vectorVisualMap.put(videoId, vector);
+        }
+
+        for (String path : pathList) {
+            String pathVideoId = path.substring(4, 9);
+            double scoreText = r1 * Math.pow(VectorUtil.getDot(pathMap.get(path), queryVector), 2);
+            double scoreVisual = r1 * Math.pow(VectorUtil.getDot(vectorVisualMap.get(pathVideoId), queryVector), 2);
+            for (String shot : shots) {
+                String shotVideoId = shot.substring(4, 9);
+                scoreText += c * Math.pow(VectorUtil.getDot(pathMap.get(path), pathMap.get(shot)), 2);
+                scoreVisual += c * Math.pow(VectorUtil.getDot(vectorVisualMap.get(pathVideoId), vectorVisualMap.get(shotVideoId)), 2);
+            }
+            reRankMap.put(path, scoreText + scoreVisual);
+        }
+
+        scoreMap = reRankMap;
+    }
+
     public void reRankByNewQuery(List<Double> queryVector, int bool) {
 
-        for (String path: pathMap.keySet()) {
+        for (String path : pathMap.keySet()) {
 
             //取出在库图片的特征向量，并转成浮点数组
             List<Double> vectorDoubleList = pathMap.get(path);
@@ -383,10 +463,9 @@ public class avsTest {
             Double preCos = scoreMap.get(path);
 
             //更新得分
-            if (bool == 0){
+            if (bool == 0) {
                 scoreMap.replace(path, preCos + 0.5 * cosineSimilarity);
-            }
-            else if (bool == 1){
+            } else if (bool == 1) {
                 scoreMap.replace(path, preCos - 0.1 * cosineSimilarity);
             }
 
@@ -415,5 +494,44 @@ public class avsTest {
         return strVector.toString();
     }
 
+    String getLabelsByQuery(String query) {
+        StringBuilder strLabels = new StringBuilder();
+        //调用 python 函数
+        try {
+            //执行 py 文件
+            String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\keyphraseExtract.py", query};
+            Process proc = Runtime.getRuntime().exec(args1);
+            BufferedReader in = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+
+            //读取输出
+            String line = null;
+            while ((line = in.readLine()) != null) {
+                strLabels.append(line);
+            }
+            in.close();
+
+            proc.waitFor();
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return strLabels.toString();
+    }
+
+    public List<Double> getTextVector(String query) {
+        List<Double> queryVector;
+
+        //调用 python 函数得到查询文本的特征向量
+        String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\textExtractor.py", query};
+        String strQueryVector = runPython(args1);
+
+        //将特征向量转化为浮点数组
+        queryVector = VectorUtil.avsQueryStrToDouble(String.valueOf(strQueryVector));
+
+        if (queryVector.size() == 257) {
+            queryVector.remove(256);
+        }
+
+        return queryVector;
+    }
 
 }

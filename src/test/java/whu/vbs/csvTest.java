@@ -1,7 +1,6 @@
 package whu.vbs;
 
 import cn.hutool.core.io.file.FileReader;
-import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
@@ -12,8 +11,7 @@ import cn.hutool.json.JSONUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import whu.vbs.Entity.GrandTruthResult;
-import whu.vbs.Entity.VideoDescriptionVector;
+import whu.vbs.Entity.CsvFile.VideoDescriptionVector;
 import whu.vbs.Mapper.VideoDescriptionVectorMapper;
 import whu.vbs.utils.VectorUtil;
 

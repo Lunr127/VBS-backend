@@ -1,14 +1,10 @@
 package whu.vbs;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.text.csv.CsvReader;
-import cn.hutool.core.text.csv.CsvUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import whu.vbs.Entity.CsvTest;
-import whu.vbs.Entity.MasterShotBoundary;
+import whu.vbs.Entity.CsvFile.MasterShotBoundary;
 import whu.vbs.Mapper.MasterShotBoundaryMapper;
 
 import java.nio.charset.StandardCharsets;

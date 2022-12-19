@@ -1,4 +1,4 @@
-package whu.vbs.Entity;
+package whu.vbs.Entity.CsvFile;
 
 import lombok.Data;
 

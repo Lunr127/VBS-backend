@@ -8,7 +8,7 @@ import cn.hutool.core.text.csv.CsvUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import whu.vbs.Entity.*;
+import whu.vbs.Entity.CsvFile.*;
 import whu.vbs.Mapper.*;
 import whu.vbs.utils.PathUtils;
 import whu.vbs.utils.VectorUtil;

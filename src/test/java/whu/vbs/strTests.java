@@ -1,20 +1,14 @@
 package whu.vbs;
 
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import whu.vbs.Entity.GrandTruthResult;
 import whu.vbs.Entity.VectorResult;
-import whu.vbs.Service.VectorService;
 import whu.vbs.utils.PathUtils;
-import whu.vbs.utils.VectorUtil;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.util.*;
 

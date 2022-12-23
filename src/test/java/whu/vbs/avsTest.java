@@ -47,6 +47,9 @@ public class avsTest {
     Map<Integer, String[]> likeShotsMap = new HashMap<>();
     Map<Integer, String[]> notLikeShotsMap = new HashMap<>();
 
+
+    Map<String, Set<String>> classificationMap = new HashMap<>();//(分类，路径list)键值对
+
     void setLikeShotsMap() {
         likeShotsMap.put(1, new String[]{"shot04804_635", "shot04804_1075", "shot00956_15", "shot00151_87", "shot07466_11", "shot04804_896", "shot01172_285", "shot00602_129", "shot00298_90", "shot06522_48", "shot06624_32", "shot00602_148", "shot02673_158", "shot03169_107", "shot01090_427", "shot00148_38", "shot00487_107", "shot03918_623", "shot03699_3", "shot04804_197", "shot00290_25", "shot02960_89", "shot04867_488", "shot00602_133", "shot03699_2", "shot07420_22", "shot02061_18", "shot00148_42", "shot06566_163", "shot01253_91", "shot06248_56", "shot01253_93", "shot00148_52", "shot05200_155", "shot02347_4", "shot04255_3", "shot01071_255", "shot00602_86", "shot04989_99", "shot04695_135", "shot01253_35", "shot06533_278", "shot04804_251", "shot05469_2", "shot02826_100", "shot04619_195", "shot04804_1238", "shot03900_146", "shot01843_96", "shot03900_226"});
         likeShotsMap.put(2, new String[]{"shot07435_51", "shot07435_52", "shot07435_37", "shot05459_35", "shot07435_50", "shot00352_19", "shot07435_53", "shot07435_41", "shot02100_332", "shot07435_43", "shot02100_310", "shot05329_25", "shot07049_4", "shot02100_253", "shot04539_61", "shot02940_29", "shot06738_51", "shot07435_32", "shot05074_75", "shot06639_182", "shot07049_3", "shot05459_86", "shot00352_105", "shot05459_33", "shot00352_97", "shot01638_14", "shot07435_33", "shot00915_70", "shot00072_23", "shot02174_199", "shot03119_63", "shot06524_27", "shot03588_95", "shot03638_93", "shot07435_34", "shot07435_54", "shot05510_245", "shot05074_81", "shot06767_22", "shot07435_42", "shot07182_48", "shot05074_99", "shot00034_101", "shot07056_17", "shot00815_69", "shot00387_115", "shot00915_49", "shot05459_61", "shot00248_37", "shot02890_27"});
@@ -152,6 +155,9 @@ public class avsTest {
                 while (Objects.equals(masterShotBoundaryList.get(index).getVideoId(), videoId)) {
                     msbByVideoId.add(masterShotBoundaryList.get(index));
                     index++;
+                    if (index == 2508108) {
+                        break;
+                    }
                 }
                 msbMap.put(videoId, msbByVideoId);
                 breakCount = i;
@@ -160,6 +166,8 @@ public class avsTest {
                 break;
             }
         }
+
+        setClassificationMap();
 
         for (query = 1; query <= 10; query++) {
 
@@ -206,7 +214,43 @@ public class avsTest {
             List<String> urlList = new ArrayList<>();//查询结果的路径
             //将路径存入urlList
             savePathToUrlList(urlList, sortMap);
-            List<String> topList = urlList.subList(0, topK);
+
+            List<String> classificationList = new ArrayList<>();//符合分类结果的路径
+            List<String> notClassificationList = new ArrayList<>();//不符合分类结果的路径
+
+            String[] queryWord = queryVector.getQuery().split(" ");
+            for (String shot : urlList) {
+                int flag = 0;
+                for (String word : queryWord) {
+                    if (Objects.equals(word, "someone")){
+                        word = "person";
+                    }
+                    if (Objects.equals(word, "persons")){
+                        word = "person";
+                    }
+                    if (Objects.equals(word, "vehicle")){
+                        word = "car";
+                    }
+                    Set<String> shotSet = classificationMap.get(word);
+                    if ((shotSet != null) && shotSet.contains(shot)) {
+                        classificationList.add(shot);
+                        flag = 1;
+                        break;
+                    }
+                }
+                if (flag == 0){
+                    notClassificationList.add(shot);
+                }
+            }
+
+            List<String> topList = new ArrayList<>();
+            if (classificationList.size() >= 1000) {
+                topList = classificationList.subList(0, topK);
+            } else {
+                topList.addAll(classificationList);
+                topList.addAll(notClassificationList.subList(0, topK - classificationList.size()));
+            }
+
 
             count = getGTMatch(topList, query);
 
@@ -255,25 +299,25 @@ public class avsTest {
 
 //            qprp();
 
-            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
-            cvts(likeShots, queryVectorList);
-
-            VectorUtil.mapNormalization(scoreMap);
-            //将（路径，得分）的键值对按得分降序
-            Map<String, Double> reRankSortMap = VectorUtil.sortMapByValues(scoreMap);
-
-
-            //将路径存入urlList
-            List<String> reRankUrlList = new ArrayList<>();//查询结果的路径
-            savePathToUrlList(reRankUrlList, reRankSortMap);
-            List<String> reRankTopList = reRankUrlList.subList(0, topK);
-
-            count = getGTMatch(reRankTopList, query);
-
-            System.out.println("top K = " + topK);
-            System.out.println("predict true count = " + count);
-            System.out.println("precision@" + topK + " = " + ((double) count / topK));
-            System.out.println();
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
+//            cvts(likeShots, queryVectorList);
+//
+//            VectorUtil.mapNormalization(scoreMap);
+//            //将（路径，得分）的键值对按得分降序
+//            Map<String, Double> reRankSortMap = VectorUtil.sortMapByValues(scoreMap);
+//
+//
+//            //将路径存入urlList
+//            List<String> reRankUrlList = new ArrayList<>();//查询结果的路径
+//            savePathToUrlList(reRankUrlList, reRankSortMap);
+//            List<String> reRankTopList = reRankUrlList.subList(0, topK);
+//
+//            count = getGTMatch(reRankTopList, query);
+//
+//            System.out.println("top K = " + topK);
+//            System.out.println("predict true count = " + count);
+//            System.out.println("precision@" + topK + " = " + ((double) count / topK));
+//            System.out.println();
 
         }
     }
@@ -313,6 +357,9 @@ public class avsTest {
                 shotId -= 1;
             }
             List<MasterShotBoundary> msbByVideoId = msbMap.get(videoId);
+            if (msbByVideoId == null) {
+                continue;
+            }
             double startTime = Double.parseDouble(msbByVideoId.get(shotId).getStartTime()) * 1000;
             double endTime = Double.parseDouble(msbByVideoId.get(shotId).getEndTime()) * 1000;
 
@@ -532,6 +579,50 @@ public class avsTest {
         }
 
         return queryVector;
+    }
+
+    public void setClassificationMap() {
+        CsvReader reader = CsvUtil.getReader();
+
+        for (int i = 1; i <= 7475; i++) {
+            if (i >= 4304 && i <= 4318 || i == 4350) {
+                continue;
+            }
+            String fileName = "";
+            if (i < 10) {
+                fileName = "0000" + i;
+            } else if (i < 100) {
+                fileName = "000" + i;
+            } else if (i < 1000) {
+                fileName = "00" + i;
+            } else if (i < 10000) {
+                fileName = "0" + i;
+            }
+            String csvPath = "D:\\Download\\VBSDataset\\classification_csv\\" + fileName + ".csv";
+            List<ClassificationResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), ClassificationResult.class);
+            for (ClassificationResult classificationResult : result) {
+                String shotId = classificationResult.getShotsid();
+                int begin = shotId.indexOf("s");
+                int end = shotId.indexOf("_", begin + 11);
+
+                String category = classificationResult.getCategory();
+                String[] categoryList = category.split(",");
+                for (String c : categoryList) {
+                    if (Objects.equals(c, "")) {
+                        break;
+                    }
+                    if (classificationMap.get(c) != null) {
+                        Set<String> shotSet = classificationMap.get(c);
+                        shotSet.add(shotId.substring(begin, end));
+                        classificationMap.replace(c, shotSet);
+                    } else {
+                        Set<String> shotSet = new HashSet<>();
+                        shotSet.add(shotId.substring(begin, end));
+                        classificationMap.put(c, shotSet);
+                    }
+                }
+            }
+        }
     }
 
 }

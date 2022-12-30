@@ -46,7 +46,7 @@ public class AvsService {
 
 
     Map<Integer, String> queryMap = new HashMap<>();
-    public void setQueryMap(){
+    public void setQueryMap() {
         queryMap.put(1, "showing one person playing a guitar (other people but no other musicians may be visible)");
         queryMap.put(2, "one or more persons balancing on a bar, railing, rope or slackline, without any device under their feet");
         queryMap.put(4, "someone riding a horse or sitting on a horse (living animal)");
@@ -57,13 +57,13 @@ public class AvsService {
         queryMap.put(10, "someone with their hands on a camera (not e.g. a phone-like device), filming or taking/preparing to take a picture");
     }
 
-    public List<Map<String, String>> topKTest(String queryStr){
+    public List<Map<String, String>> topKTest(String queryStr) {
 
         scoreMap = new HashMap<>();
         pathMap = new HashMap<>();
 
         setQueryMap();
-        for (Integer key: queryMap.keySet()){
+        for (Integer key : queryMap.keySet()) {
             if (queryStr.equals(queryMap.get(key))) {
                 query = key;
             }
@@ -111,7 +111,7 @@ public class AvsService {
         List<Map<String, String>> base64List = new ArrayList<>();
         for (String shot : topList.subList(0, showTopK)) {
             Map<String, String> base64Map = new HashMap<>();// (base64，路径)键值对
-            String base64 = "data:image/png;base64,"+ imgToBase64(shot);
+            String base64 = "data:image/png;base64," + imgToBase64(shot);
             base64Map.put("shot", shot);
             base64Map.put("base64", base64);
             base64List.add(base64Map);
@@ -121,7 +121,7 @@ public class AvsService {
     }
 
 
-    public List<Map<String, String>> reRank(List<String> LikePaths, List<String> NotLikePaths){
+    public List<Map<String, String>> reRank(List<String> LikePaths, List<String> NotLikePaths) {
         List<String> urlList = new ArrayList<>();
 
         feedBack(LikePaths, 0);
@@ -138,7 +138,7 @@ public class AvsService {
         List<Map<String, String>> base64List = new ArrayList<>();
         for (String shot : topList.subList(0, showTopK)) {
             Map<String, String> base64Map = new HashMap<>();// (base64，路径)键值对
-            String base64 = "data:image/png;base64,"+ imgToBase64(shot);
+            String base64 = "data:image/png;base64," + imgToBase64(shot);
             base64Map.put("shot", shot);
             base64Map.put("base64", base64);
             base64List.add(base64Map);
@@ -149,7 +149,7 @@ public class AvsService {
 
     public void feedBack(List<String> Paths, int bool) {
 
-        if (Paths.get(0).length() < 5){
+        if (Paths.get(0).length() < 5) {
             return;
         }
 
@@ -158,15 +158,15 @@ public class AvsService {
 
             //得到选中的反馈图片的向量
             String selectedVector = pathMap.get(path).toString();
-            selectedVector = selectedVector.substring(1, selectedVector.length()-1);
+            selectedVector = selectedVector.substring(1, selectedVector.length() - 1);
 
             //反馈图片的概率得分 vectorCosineSimilarity
             Double selectedCos = scoreMap.get(path);
 
             //调用 python 函数得到新的查询向量
-            String[] args1 = new String[] { "E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qir.py", selectedVector, selectedCos.toString() };
+            String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\qir.py", selectedVector, selectedCos.toString()};
             String strQueryVector = runPython(args1);
-            List<Double> newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector),2);
+            List<Double> newQueryVector = VectorUtil.strToDouble(String.valueOf(strQueryVector), 2);
 
             //更新所有图片的概率得分
             reRankByNewQuery(newQueryVector, bool);
@@ -176,7 +176,7 @@ public class AvsService {
 
     public void reRankByNewQuery(List<Double> queryVector, int bool) {
 
-        for (String path: pathMap.keySet()) {
+        for (String path : pathMap.keySet()) {
 
             //取出在库图片的特征向量，并转成浮点数组
             List<Double> vectorDoubleList = pathMap.get(path);
@@ -188,10 +188,9 @@ public class AvsService {
             Double preCos = scoreMap.get(path);
 
             //更新得分
-            if (bool == 0){
+            if (bool == 0) {
                 scoreMap.replace(path, preCos + 0.5 * cosineSimilarity);
-            }
-            else if (bool == 1){
+            } else if (bool == 1) {
                 scoreMap.replace(path, preCos - 0.1 * cosineSimilarity);
             }
 
@@ -205,8 +204,14 @@ public class AvsService {
         }
     }
 
-    public String imgToBase64(String shot){
-        String path = "F:\\VBSDataset\\V3C1\\thumbnails\\" + shot.substring(4, 9) + "\\" + shot + ".png" ;
+    public String imgToBase64(String shot) {
+        String path = "";
+        if (Integer.valueOf(shot.substring(4, 9)) <= 7475) {
+            path = "F:\\VBSDataset\\V3C1\\thumbnails\\" + shot.substring(4, 9) + "\\" + shot + ".png";
+        } else {
+            path = "F:\\VBSDataset\\V3C2\\thumbnails\\" + shot.substring(4, 9) + "\\" + shot + ".png";
+        }
+
         File file = new File(path);
 
         byte[] data = null;
@@ -246,7 +251,7 @@ public class AvsService {
     }
 
 
-    public Map<String, Double> mapNormAndSort(){
+    public Map<String, Double> mapNormAndSort() {
         //（路径，得分）键值对 得分归一化
         VectorUtil.mapNormalization(scoreMap);
 

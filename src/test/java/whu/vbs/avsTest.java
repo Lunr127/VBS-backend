@@ -1,10 +1,13 @@
 package whu.vbs;
 
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -169,6 +172,7 @@ public class avsTest {
 
         setClassificationMap();
 
+        List<List<String>> rows = CollUtil.newArrayList();
         for (query = 1; query <= 10; query++) {
 
             if (query == 3 || query == 8 || query == 7 || query == 9) {
@@ -180,7 +184,7 @@ public class avsTest {
             pathList = new ArrayList<>();
 
             CsvReader reader = CsvUtil.getReader();
-            String csvPath = "D:\\Download\\VBSDataset\\avs_grand_truth\\" + query + ".csv";
+            String csvPath = "D:\\Download\\VBSDataset\\blip_v3c1_top10000\\" + query + ".csv";
             List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
 
 
@@ -211,53 +215,87 @@ public class avsTest {
             //将（路径，得分）的键值对按得分降序
             Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
 
+
+
+            VectorUtil.mapNormalization(scoreMap);
+
+            //将（路径，得分）的键值对按得分降序
+            sortMap = VectorUtil.sortMapByValues(scoreMap);
+
+
             List<String> urlList = new ArrayList<>();//查询结果的路径
             //将路径存入urlList
             savePathToUrlList(urlList, sortMap);
 
-            List<String> classificationList = new ArrayList<>();//符合分类结果的路径
-            List<String> notClassificationList = new ArrayList<>();//不符合分类结果的路径
 
-            String[] queryWord = queryVector.getQuery().split(" ");
-            for (String shot : urlList) {
-                int flag = 0;
-                for (String word : queryWord) {
-                    if (Objects.equals(word, "someone")){
-                        word = "person";
-                    }
-                    if (Objects.equals(word, "persons")){
-                        word = "person";
-                    }
-                    if (Objects.equals(word, "vehicle")){
-                        word = "car";
-                    }
-                    Set<String> shotSet = classificationMap.get(word);
-                    if ((shotSet != null) && shotSet.contains(shot)) {
-                        classificationList.add(shot);
-                        flag = 1;
-                        break;
-                    }
-                }
-                if (flag == 0){
-                    notClassificationList.add(shot);
-                }
+            System.out.println("--------------Query " + query + "------------------");
+
+
+            List<String> row = CollUtil.newArrayList();
+            for (int i = 1; i <= 20; i++) {
+                List<String> topList = urlList.subList(0, i * 10);
+                double score = getScore(topList, query);
+                double score2 = (double) Math.round(score * 100) / 100;
+                row.add(String.valueOf(score2));
             }
 
-            List<String> topList = new ArrayList<>();
-            if (classificationList.size() >= 1000) {
-                topList = classificationList.subList(0, topK);
-            } else {
-                topList.addAll(classificationList);
-                topList.addAll(notClassificationList.subList(0, topK - classificationList.size()));
+            for (int i = 3; i <= 20; i++) {
+                List<String> topList = urlList.subList(0, i * 100);
+                double score = getScore(topList, query);
+                double score2 = (double) Math.round(score * 100) / 100;
+                row.add(String.valueOf(score2));
             }
 
+            rows.add(row);
 
-            count = getGTMatch(topList, query);
-
-            System.out.println("top K = " + topK);
-            System.out.println("predict true count = " + count);
-            System.out.println("precision@" + topK + " = " + ((double) count / topK));
+            System.out.println("------------------------------------------------");
             System.out.println();
+
+
+//            // yolo
+//            List<String> classificationList = new ArrayList<>();//符合分类结果的路径
+//            List<String> notClassificationList = new ArrayList<>();//不符合分类结果的路径
+//
+//            String[] queryWord = queryVector.getQuery().split(" ");
+//            for (String shot : urlList) {
+//                int flag = 0;
+//                for (String word : queryWord) {
+//                    if (Objects.equals(word, "someone")){
+//                        word = "person";
+//                    }
+//                    if (Objects.equals(word, "persons")){
+//                        word = "person";
+//                    }
+//                    if (Objects.equals(word, "vehicle")){
+//                        word = "car";
+//                    }
+//                    Set<String> shotSet = classificationMap.get(word);
+//                    if ((shotSet != null) && shotSet.contains(shot)) {
+//                        classificationList.add(shot);
+//                        flag = 1;
+//                        break;
+//                    }
+//                }
+//                if (flag == 0){
+//                    notClassificationList.add(shot);
+//                }
+//            }
+//
+//            List<String> topList = new ArrayList<>();
+//            if (classificationList.size() >= 1000) {
+//                topList = classificationList.subList(0, topK);
+//            } else {
+//                topList.addAll(classificationList);
+//                topList.addAll(notClassificationList.subList(0, topK - classificationList.size()));
+//            }
+
+
+//            count = getGTMatch(topList, query);
+//
+//            System.out.println("top K = " + topK);
+//            System.out.println("predict true count = " + count);
+//            System.out.println("precision@" + topK + " = " + ((double) count / topK));
+//            System.out.println();
 
 
 //            String[] likeShots = likeShotsMap.get(query);
@@ -320,8 +358,93 @@ public class avsTest {
 //            System.out.println();
 
         }
+        System.out.println(rows);
+        //通过工具类创建writer
+        ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
+
+        //一次性写出内容，强制输出标题
+        writer.write(rows, true);
+        //关闭writer，释放内存
+        writer.close();
     }
 
+    public double getScore(List<String> urlList, int query) {
+        Map<String, Object> selectByQueryMap = new HashMap<>();
+        selectByQueryMap.put("query_id", query);
+        List<AvsGrandTruth> avsGrandTruths = avsGrandTruthMapper.selectByMap(selectByQueryMap);
+
+        List<AvsGrandTruth> queryGrandTruths = new ArrayList<>();
+
+        for (AvsGrandTruth avsGrandTruth : avsGrandTruths) {
+            if (Integer.parseInt(avsGrandTruth.getVideoId()) < 7476) {
+                queryGrandTruths.add(avsGrandTruth);
+            }
+        }
+
+
+        Map<String, List<String>> videoShotMap = new HashMap<>(); //(videoId, shotsList)键值对
+
+        for (String shot : urlList) {
+            String videoId = shot.substring(4, 9);
+            if (videoShotMap.get(videoId) == null) {
+                List<String> shots = new ArrayList<>();
+                shots.add(shot);
+                videoShotMap.put(videoId, shots);
+            } else {
+                List<String> shots = videoShotMap.get(videoId);
+                shots.add(shot);
+                videoShotMap.replace(videoId, shots);
+            }
+        }
+
+        double p = 0.1;
+        int countAllTeam = 200;
+        double sum = 0.0;
+
+        for (String videoId : videoShotMap.keySet()) {
+            List<String> shotsList = videoShotMap.get(videoId);
+            int flag1 = 0;
+            int incorrectCount = 0;
+            for (String shot : shotsList) {
+                int shotId = Integer.parseInt(shot.substring(10)) - 1;
+                if (shotId > 100) {
+                    shotId -= 1;
+                }
+                List<MasterShotBoundary> msbByVideoId = msbMap.get(videoId);
+                if (msbByVideoId == null) {
+                    continue;
+                }
+                double startTime = Double.parseDouble(msbByVideoId.get(shotId).getStartTime()) * 1000;
+                double endTime = Double.parseDouble(msbByVideoId.get(shotId).getEndTime()) * 1000;
+
+                int flag2 = 0;
+                for (AvsGrandTruth avsGrandTruth : queryGrandTruths) {
+                    double gtStartTime = Double.parseDouble(avsGrandTruth.getStartTime());
+                    double gtEndTime = Double.parseDouble(avsGrandTruth.getEndTime());
+                    if (Objects.equals(avsGrandTruth.getVideoId(), videoId) &&
+                            ((gtStartTime > startTime - 2000) || (gtStartTime < startTime + 2000)) &&
+                            ((gtEndTime > endTime - 2000) || (gtEndTime < endTime + 2000))) {
+                        flag2 = 1;
+                        break;
+                    }
+                }
+                if (flag2 == 0) {
+                    incorrectCount++;
+                } else {
+                    flag1 = 1;
+                    break;
+                }
+            }
+            if (flag1 == 0) {
+                sum = sum + (0 - incorrectCount * p);
+            } else {
+                sum = sum + (1 - incorrectCount * p);
+            }
+        }
+
+        sum = 1000 * sum / countAllTeam;
+        return sum;
+    }
 
     public void savePathToUrlList(List<String> urlList, Map<String, Double> sortMap) {
         for (String path : sortMap.keySet()) {
@@ -367,7 +490,7 @@ public class avsTest {
             for (AvsGrandTruth avsGrandTruth : queryGrandTruths) {
                 double gtStartTime = Double.parseDouble(avsGrandTruth.getStartTime());
                 double gtEndTime = Double.parseDouble(avsGrandTruth.getEndTime());
-                if (Objects.equals(avsGrandTruth.getVideoId(), videoId) && gtStartTime > startTime - 10000 && gtEndTime < endTime + 10000) {
+                if (Objects.equals(avsGrandTruth.getVideoId(), videoId) && gtStartTime > startTime - 3000 && gtEndTime < endTime + 3000) {
                     avsGrandTruthSet.add(avsGrandTruth);
                 }
             }

@@ -40,19 +40,22 @@ public class avsTest {
     @Autowired
     AvsQueryMapper avsQueryMapper;
 
-    Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对
-    Map<String, List<Double>> pathMap = new HashMap<>();//（路径，向量）键值对
+    Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对: 形如（shot00001_1, 0.8）
+    Map<String, List<Double>> pathMap = new HashMap<>();//（路径，向量）键值对: 形如（shot00001_1, [0.8,...,0.6]）
     List<String> pathList = new ArrayList<>();
 
     Map<String, List<MasterShotBoundary>> msbMap = new HashMap<>();
 
 
-    Map<Integer, String[]> likeShotsMap = new HashMap<>();
-    Map<Integer, String[]> notLikeShotsMap = new HashMap<>();
+    Map<Integer, String[]> likeShotsMap = new HashMap<>();//(查询编号，路径键值对): 形如（1,shot00001_1）
+    Map<Integer, String[]> notLikeShotsMap = new HashMap<>();//(查询编号，路径键值对): 形如（1,shot00001_1）
 
 
     Map<String, Set<String>> classificationMap = new HashMap<>();//(分类，路径list)键值对
 
+    /**
+     * 正反馈样本 仅V3C1数据集
+     */
     void setLikeShotsMap() {
         likeShotsMap.put(1, new String[]{"shot04804_635", "shot04804_1075", "shot00956_15", "shot00151_87", "shot07466_11", "shot04804_896", "shot01172_285", "shot00602_129", "shot00298_90", "shot06522_48", "shot06624_32", "shot00602_148", "shot02673_158", "shot03169_107", "shot01090_427", "shot00148_38", "shot00487_107", "shot03918_623", "shot03699_3", "shot04804_197", "shot00290_25", "shot02960_89", "shot04867_488", "shot00602_133", "shot03699_2", "shot07420_22", "shot02061_18", "shot00148_42", "shot06566_163", "shot01253_91", "shot06248_56", "shot01253_93", "shot00148_52", "shot05200_155", "shot02347_4", "shot04255_3", "shot01071_255", "shot00602_86", "shot04989_99", "shot04695_135", "shot01253_35", "shot06533_278", "shot04804_251", "shot05469_2", "shot02826_100", "shot04619_195", "shot04804_1238", "shot03900_146", "shot01843_96", "shot03900_226"});
         likeShotsMap.put(2, new String[]{"shot07435_51", "shot07435_52", "shot07435_37", "shot05459_35", "shot07435_50", "shot00352_19", "shot07435_53", "shot07435_41", "shot02100_332", "shot07435_43", "shot02100_310", "shot05329_25", "shot07049_4", "shot02100_253", "shot04539_61", "shot02940_29", "shot06738_51", "shot07435_32", "shot05074_75", "shot06639_182", "shot07049_3", "shot05459_86", "shot00352_105", "shot05459_33", "shot00352_97", "shot01638_14", "shot07435_33", "shot00915_70", "shot00072_23", "shot02174_199", "shot03119_63", "shot06524_27", "shot03588_95", "shot03638_93", "shot07435_34", "shot07435_54", "shot05510_245", "shot05074_81", "shot06767_22", "shot07435_42", "shot07182_48", "shot05074_99", "shot00034_101", "shot07056_17", "shot00815_69", "shot00387_115", "shot00915_49", "shot05459_61", "shot00248_37", "shot02890_27"});
@@ -62,6 +65,9 @@ public class avsTest {
         likeShotsMap.put(10, new String[]{"shot02285_9", "shot06195_4", "shot02645_97", "shot01559_92", "shot00668_16", "shot02763_184", "shot04052_50", "shot06007_158", "shot06007_163", "shot06007_513", "shot06007_80", "shot06188_306", "shot05522_39", "shot03719_28", "shot05133_34", "shot05734_178", "shot01559_7", "shot04979_20", "shot00481_46", "shot07389_29", "shot04979_21", "shot05522_46", "shot02957_295", "shot05734_179", "shot04175_15", "shot03011_313", "shot06523_192", "shot00172_43", "shot02285_7", "shot00172_40", "shot00172_39", "shot06007_510", "shot05195_139", "shot01577_116", "shot05795_72", "shot02763_75", "shot04096_425", "shot02075_65", "shot06188_304", "shot00481_48", "shot07051_109", "shot06007_293", "shot04780_664", "shot06007_511", "shot06188_305", "shot04123_26", "shot05522_85", "shot05587_148", "shot02143_78", "shot02381_146"});
     }
 
+    /**
+     * 负反馈样本 仅V3C1数据集
+     */
     void setNotLikeShotsMap() {
         notLikeShotsMap.put(1, new String[]{"shot04804_1166", "shot02684_21", "shot04804_428", "shot04892_80", "shot04804_773", "shot05511_5", "shot02347_51", "shot00654_364", "shot05511_4", "shot04804_744", "shot02684_46", "shot01967_4", "shot01404_383", "shot05368_95", "shot01498_11", "shot02347_50", "shot07466_39", "shot02426_40", "shot02684_115", "shot02347_23", "shot01617_145", "shot01386_104", "shot01880_20", "shot03626_3", "shot06248_323", "shot06808_910", "shot07043_90", "shot06674_68", "shot03319_668", "shot03319_716", "shot02347_16", "shot05511_8", "shot03001_165", "shot04804_1328", "shot06077_4", "shot01292_229", "shot05368_123", "shot01951_54", "shot03319_152", "shot02347_2", "shot05368_121", "shot00058_76", "shot02347_75", "shot01951_52", "shot02684_89", "shot06248_336", "shot06248_441", "shot07265_30", "shot06547_90", "shot05703_31"});
         notLikeShotsMap.put(2, new String[]{"shot05550_32", "shot07054_35", "shot01883_174", "shot06121_37", "shot04429_46", "shot06121_53", "shot05507_51", "shot05507_50", "shot06311_48", "shot06614_10", "shot04583_71", "shot02351_204", "shot05707_59", "shot00487_81", "shot00750_611", "shot00256_79", "shot00352_119", "shot03916_130", "shot06121_36", "shot03263_100", "shot02876_100", "shot05071_44", "shot04120_2", "shot02444_13", "shot02351_303", "shot05115_55", "shot06121_173", "shot06771_6", "shot07321_46", "shot01904_47", "shot06034_259", "shot03055_248", "shot05459_87", "shot03082_83", "shot03415_89", "shot00320_26", "shot01477_20", "shot05371_96", "shot04841_11", "shot02412_86", "shot04539_48", "shot02168_8", "shot03394_6", "shot01423_75", "shot01477_77", "shot06103_17", "shot06624_22", "shot06771_122", "shot02100_106", "shot03919_164"});
@@ -73,8 +79,12 @@ public class avsTest {
 
 
     int topK = 1000;
+    int countAllTeam;   //avs测评指标的C值
 
 
+    /**
+     * 测试函数无用 别理
+     */
     @Test
     void saveAvs() {
         String tsvPath = "D:\\Download\\VBSDataset\\vbs22\\AVSans.csv";
@@ -92,6 +102,9 @@ public class avsTest {
     }
 
 
+    /**
+     * 测试函数无用 别理
+     */
     @Test
     void avsGTTest() {
         String shot = "shot00136_217";
@@ -126,18 +139,25 @@ public class avsTest {
         System.out.println(count);
     }
 
+
+    /**
+     * 主要的测试函数在这里
+     */
     @Test
     void initialSortingTest() {
 
+        // 初始化正负反馈样本键值对
         setLikeShotsMap();
         setNotLikeShotsMap();
 
 
-        int query;
+        int query;  // 查询编号
         int count;
 
+        // 获得msb镜头边界list
         List<MasterShotBoundary> masterShotBoundaryList = msbMapper.selectList(null);
 
+        // msb相关初始化 收起就行 不用多管
         int breakCount = 0;
         for (int index = 0; index < masterShotBoundaryList.size(); index++) {
             for (int i = 1; i <= 7475; i++) {
@@ -170,29 +190,35 @@ public class avsTest {
             }
         }
 
+        // yolo相关 先注释掉
         setClassificationMap();
 
+        // 结果输出excel需要的
         List<List<String>> rows = CollUtil.newArrayList();
+
+        // 1-10查询
         for (query = 1; query <= 10; query++) {
 
+            //跳过没有gt的查询
             if (query == 3 || query == 8 || query == 7 || query == 9) {
                 continue;
             }
 
+            // 每次查询重新初始化
             scoreMap = new HashMap<>();
             pathMap = new HashMap<>();
             pathList = new ArrayList<>();
 
+            // 读取faiss产生的top10000文件
             CsvReader reader = CsvUtil.getReader();
             String csvPath = "D:\\Download\\VBSDataset\\blip_v3c1_top10000\\" + query + ".csv";
             List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
 
-
+            // 获取数据库中查询语句对应的特征向量
             AvsQuery queryVector = avsQueryMapper.selectById(query);
-
             List<Double> queryVectorList = VectorUtil.strToDouble(queryVector.getVector(), 1);
 
-
+            // gt处理 收起就好 不用管
             for (GrandTruthResult grandTruthResult : result) {
                 pathList.add(PathUtils.handleToGTPath(grandTruthResult.getShot()));
 
@@ -209,18 +235,58 @@ public class avsTest {
                 pathMap.put(PathUtils.handleToGTPath(grandTruthResult.getShot()), vectorDoubleList);
             }
 
-            //initial
+            // 得分归一化
             VectorUtil.mapNormalization(scoreMap);
 
-            //将（路径，得分）的键值对按得分降序
+            // 将（路径，得分）的键值对按得分降序
             Map<String, Double> sortMap = VectorUtil.sortMapByValues(scoreMap);
 
 
+            // 这里做的是一个个算法单独测 每次打开一个算法的注释即可
+            // 如果需要同时测，一个算法跑完，需要还原scoreMap，再跑下一个算法，例如
+            // Map<String, Double> tmpMap = sortMap;
+            // 算法测试
+            // sortMap = tmpMap;
 
+
+            // Rocchio重排 Rocchio这里暂时有点问题 反馈样本各选了前5个先 （bug已修复 反馈各50个）
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
+//            for (String shot : likeShots) {
+//                Rocchio(shot, 0);   //Rocchio 0表示正反馈
+//            }
+//
+//            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query));
+//            for (String shot : notLikeShots) {
+//                Rocchio(shot, 1);   //Rocchio 1表示负反馈
+//            }
+
+
+//            // qmr重排
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query)).subList(0, 5);
+//            for (String shot : likeShots) {
+//                qmr(shot);  //qmr
+//                Rocchio(shot, 0);   //Rocchio
+//            }
+
+
+              // qir重排 也暂时有点问题 反馈样本各选了前5个先 （bug已修复 反馈各50个）
+              // 使用qir，需要到qir方法里，修改qir.py文件路径
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
+//            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query));
+//            qir(likeShots, 0);
+//            qir(notLikeShots, 1);
+
+
+              // cvts重排
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query));
+//            cvts(likeShots, queryVectorList);
+
+
+            // 重排后得分归一化
             VectorUtil.mapNormalization(scoreMap);
-
-            //将（路径，得分）的键值对按得分降序
+            // 将（路径，得分）的键值对按得分降序
             sortMap = VectorUtil.sortMapByValues(scoreMap);
+
 
 
             List<String> urlList = new ArrayList<>();//查询结果的路径
@@ -230,28 +296,45 @@ public class avsTest {
 
             System.out.println("--------------Query " + query + "------------------");
 
-
+            // 结果输出excel需要的
             List<String> row = CollUtil.newArrayList();
+
             for (int i = 1; i <= 20; i++) {
+                // 12.30 结果中 topK k=10，20，...，200
                 List<String> topList = urlList.subList(0, i * 10);
-                double score = getScore(topList, query);
-                double score2 = (double) Math.round(score * 100) / 100;
+
+                double score = getScore(topList, query);// 获得topList的avs得分
+                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
                 row.add(String.valueOf(score2));
             }
 
             for (int i = 3; i <= 20; i++) {
+                // 12.30 结果中 topK k=300，400，...，2000
                 List<String> topList = urlList.subList(0, i * 100);
-                double score = getScore(topList, query);
-                double score2 = (double) Math.round(score * 100) / 100;
+
+                double score = getScore(topList, query);// 获得topList的avs得分
+                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
                 row.add(String.valueOf(score2));
             }
 
-            rows.add(row);
+            rows.add(row);// 结果输出excel需要的
 
             System.out.println("------------------------------------------------");
             System.out.println();
 
 
+            System.out.println(rows);
+            // 结果输出excel 需要修改路径
+            //通过工具类创建writer
+            ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
+
+            //一次性写出内容
+            writer.write(rows, true);
+            //关闭writer，释放内存
+            writer.close();
+
+
+            // 下面的注释可以先不看 之前测试的各个算法的正负反馈 上面已重新标注 yolo和label之后再说
 //            // yolo
 //            List<String> classificationList = new ArrayList<>();//符合分类结果的路径
 //            List<String> notClassificationList = new ArrayList<>();//不符合分类结果的路径
@@ -358,16 +441,16 @@ public class avsTest {
 //            System.out.println();
 
         }
-        System.out.println(rows);
-        //通过工具类创建writer
-        ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
 
-        //一次性写出内容，强制输出标题
-        writer.write(rows, true);
-        //关闭writer，释放内存
-        writer.close();
     }
 
+    /**
+     * 根据List，给出avs测评分数
+     * 需要修改C值，即此方法中的countAllTeam属性，已修改为全局变量
+     * @param urlList
+     * @param query
+     * @return
+     */
     public double getScore(List<String> urlList, int query) {
         Map<String, Object> selectByQueryMap = new HashMap<>();
         selectByQueryMap.put("query_id", query);
@@ -398,7 +481,7 @@ public class avsTest {
         }
 
         double p = 0.1;
-        int countAllTeam = 200;
+        countAllTeam = 200;
         double sum = 0.0;
 
         for (String videoId : videoShotMap.keySet()) {
@@ -446,6 +529,11 @@ public class avsTest {
         return sum;
     }
 
+    /**
+     * 将scoreMap中的shot以得分从高到低存至urlList中
+     * @param urlList
+     * @param sortMap
+     */
     public void savePathToUrlList(List<String> urlList, Map<String, Double> sortMap) {
         for (String path : sortMap.keySet()) {
             urlList.add(path);
@@ -501,6 +589,11 @@ public class avsTest {
     }
 
 
+    /**
+     * Rocchio算法
+     * @param shot
+     * @param bool
+     */
     void Rocchio(String shot, int bool) {
 
         List<Double> shotVector = pathMap.get(shot);
@@ -517,6 +610,10 @@ public class avsTest {
         }
     }
 
+    /**
+     * qmr 算法
+     * @param shot
+     */
     void qmr(String shot) {
         double alpha_dt = Math.sqrt(scoreMap.get(shot));
         double beta_dt = Math.sqrt(1 - scoreMap.get(shot));
@@ -534,6 +631,11 @@ public class avsTest {
         }
     }
 
+    /**
+     * qir算法，需要改动运行的qir.py文件路径和python.exe文件路径
+     * @param Paths
+     * @param bool
+     */
     public void qir(List<String> Paths, int bool) {
 
         if (Paths.get(0).length() < 5) {
@@ -562,6 +664,9 @@ public class avsTest {
         }
     }
 
+    /**
+     * qprp算法，时间复杂度太高不用测
+     */
     public void qprp() {
         Map<String, Double> reRankMap = new HashMap<>();
         List<String> tmpList = pathList;
@@ -589,6 +694,11 @@ public class avsTest {
 
     }
 
+    /**
+     * cvts算法
+     * @param shots
+     * @param queryVector
+     */
     public void cvts(List<String> shots, List<Double> queryVector) {
         double r1 = 1.0;
         double r2 = 0.2;
@@ -619,6 +729,12 @@ public class avsTest {
         scoreMap = reRankMap;
     }
 
+
+    /**
+     * qir的权重在这个函数里调
+     * @param queryVector
+     * @param bool
+     */
     public void reRankByNewQuery(List<Double> queryVector, int bool) {
 
         for (String path : pathMap.keySet()) {
@@ -641,6 +757,9 @@ public class avsTest {
 
         }
     }
+
+
+    // 其他一些工具方法 不用细看
 
     public String runPython(String[] args) {
         StringBuilder strVector = new StringBuilder();

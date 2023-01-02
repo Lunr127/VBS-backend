@@ -32,7 +32,6 @@ public class kisTest {
     KisvQueryMapper kisvQueryMapper;
 
 
-
     Map<String, List<MasterShotBoundary>> msbMap = new HashMap<>();
 
     Map<String, Double> scoreMap = new HashMap<>();//（路径，得分）键值对: 形如（shot00001_1, 0.8）
@@ -42,7 +41,7 @@ public class kisTest {
 
 
     @Test
-    void kisvTest(){
+    void kisvTest() {
         List<KisvGrandTruth> kisvGrandTruths = kisvGrandTruthMapper.selectList(null);
         List<MasterShotBoundary> masterShotBoundaryList = msbMapper.selectList(null);
 
@@ -79,18 +78,21 @@ public class kisTest {
             }
         }
 
+        // 暂时只做了V3C1
         List<Integer> queryList = new ArrayList<>();
         for (KisvGrandTruth kisvGrandTruth : kisvGrandTruths) {
             int videoId = Integer.parseInt(kisvGrandTruth.getVideoId());
             int queryId = kisvGrandTruth.getQueryId();
-            if (videoId <= 7475){
+            if (videoId <= 7475) {
                 queryList.add(queryId);
                 queryVideoMap.put(queryId, kisvGrandTruth.getVideoId());
             }
         }
 
+        // 查询编号列表
         System.out.println(queryList);
 
+        // 遍历所有查询
         for (int query : queryList) {
 
             // 每次查询重新初始化
@@ -103,9 +105,9 @@ public class kisTest {
             String csvPath = "D:\\Download\\VBSDataset\\kisv_top10000\\" + query + ".csv";
             List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
 
-            // 获取数据库中查询语句对应的特征向量
-            QueryWrapper<KisvQuery> queryWrapper=new QueryWrapper();
-            queryWrapper.eq("query_id",query);
+            // 获取数据库中查询对应的特征向量
+            QueryWrapper<KisvQuery> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("query_id", query);
             List<KisvQuery> kisvQueryList = kisvQueryMapper.selectList(queryWrapper);
             KisvQuery kisvQuery = kisvQueryList.get(0);
             List<Double> queryVectorList = VectorUtil.strToDouble(kisvQuery.getVector(), 1);
@@ -138,21 +140,28 @@ public class kisTest {
             savePathToUrlList(urlList, sortMap);
 
             System.out.println("------------- Query: " + query + "-----------");
-            double score = getScore(urlList, query);
-            System.out.println();
+            int count = getScore(urlList, query);
+            System.out.println(count);
         }
 
 
     }
 
 
-    public double getScore(List<String> urlList, int query) {
-        QueryWrapper<KisvGrandTruth> queryWrapper=new QueryWrapper();
-        queryWrapper.eq("query_id",query);
+    /**
+     * 本来应该是得到得分的，暂时返回初始排序中第一个符合gt的次序
+     * @param urlList
+     * @param query
+     * @return
+     */
+    public int getScore(List<String> urlList, int query) {
+        QueryWrapper<KisvGrandTruth> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("query_id", query);
         List<KisvGrandTruth> kisvGrandTruths = kisvGrandTruthMapper.selectList(queryWrapper);
         KisvGrandTruth kisvGrandTruth = kisvGrandTruths.get(0);
         System.out.println(kisvGrandTruth);
 
+        // gt对应的起止时间
         double gtStartTime = Double.parseDouble(kisvGrandTruth.getStartTime());
         double gtEndTime = Double.parseDouble(kisvGrandTruth.getEndTime());
 
@@ -163,7 +172,7 @@ public class kisTest {
             String videoId = shot.substring(4, 9);
             int shotId = Integer.parseInt(shot.substring(10)) - 1;
 
-            if (!videoId.equals(kisvGrandTruth.getVideoId())){
+            if (!videoId.equals(kisvGrandTruth.getVideoId())) {
                 continue;
             }
             if (shotId > 100) {
@@ -176,10 +185,9 @@ public class kisTest {
             double startTime = Double.parseDouble(msbByVideoId.get(shotId).getStartTime()) * 1000;
             double endTime = Double.parseDouble(msbByVideoId.get(shotId).getEndTime()) * 1000;
 
+            // 判断是否符合gt
             if (((gtStartTime > startTime - 2000) || (gtStartTime < startTime + 2000)) &&
-                    ((gtEndTime > endTime - 2000) || (gtEndTime < endTime + 2000))){
-                System.out.println(shot);
-                System.out.println(count);
+                    ((gtEndTime > endTime - 2000) || (gtEndTime < endTime + 2000))) {
                 break;
             }
 
@@ -188,8 +196,11 @@ public class kisTest {
     }
 
 
+    /**
+     * 根据路径获得图片的特征向量 已通过测试
+     */
     @Test
-    void getImageVector(){
+    void getImageVector() {
         String imagePath = "C:/Users/Lunr/Desktop/image/06040_1.png";
 
 
@@ -199,6 +210,9 @@ public class kisTest {
         List<Double> imageVectorList = VectorUtil.imageStrToDouble(imageVector);
         System.out.println(imageVectorList);
     }
+
+
+    // 一些工具函数
 
     public void savePathToUrlList(List<String> urlList, Map<String, Double> sortMap) {
         for (String path : sortMap.keySet()) {

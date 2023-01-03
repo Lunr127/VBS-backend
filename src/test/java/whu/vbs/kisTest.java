@@ -102,7 +102,7 @@ public class kisTest {
 
             // 读取faiss产生的top10000文件
             CsvReader reader = CsvUtil.getReader();
-            String csvPath = "D:\\Download\\VBSDataset\\kisv_top10000\\" + query + ".csv";
+            String csvPath = "D:\\Download\\VBSDataset\\kisv_top10000_1\\" + query + ".csv";
             List<GrandTruthResult> result = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
 
             // 获取数据库中查询对应的特征向量
@@ -141,7 +141,7 @@ public class kisTest {
 
             System.out.println("------------- Query: " + query + "-----------");
             int count = getScore(urlList, query);
-            System.out.println(count);
+            System.out.println("First gt match: " + count);
         }
 
 
@@ -150,6 +150,7 @@ public class kisTest {
 
     /**
      * 本来应该是得到得分的，暂时返回初始排序中第一个符合gt的次序
+     *
      * @param urlList
      * @param query
      * @return
@@ -159,6 +160,7 @@ public class kisTest {
         queryWrapper.eq("query_id", query);
         List<KisvGrandTruth> kisvGrandTruths = kisvGrandTruthMapper.selectList(queryWrapper);
         KisvGrandTruth kisvGrandTruth = kisvGrandTruths.get(0);
+        String gtVideoId = kisvGrandTruth.getVideoId();
         System.out.println(kisvGrandTruth);
 
         // gt对应的起止时间
@@ -166,6 +168,9 @@ public class kisTest {
         double gtEndTime = Double.parseDouble(kisvGrandTruth.getEndTime());
 
         int count = 0;
+        int result = 0;
+        int flag2 = 0;
+
 
         for (String shot : urlList) {
             count++;
@@ -182,17 +187,26 @@ public class kisTest {
             if (msbByVideoId == null) {
                 continue;
             }
+
+            // 判断第一个符合gt的videoId的shot
+            if (flag2 == 0 && Objects.equals(gtVideoId, videoId)) {
+                System.out.println("First video match: " + count);
+                flag2 = 1;
+            }
+
             double startTime = Double.parseDouble(msbByVideoId.get(shotId).getStartTime()) * 1000;
             double endTime = Double.parseDouble(msbByVideoId.get(shotId).getEndTime()) * 1000;
 
             // 判断是否符合gt
-            if (((gtStartTime > startTime - 2000) || (gtStartTime < startTime + 2000)) &&
-                    ((gtEndTime > endTime - 2000) || (gtEndTime < endTime + 2000))) {
+            if ((((startTime < gtEndTime + 2000) && (startTime > gtStartTime - 2000))) ||
+                    (((endTime < gtEndTime + 2000) && (endTime > gtStartTime - 2000)))) {
+
+                result = count;
                 break;
             }
 
         }
-        return count;
+        return result;
     }
 
 

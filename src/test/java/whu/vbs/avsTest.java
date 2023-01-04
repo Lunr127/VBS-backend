@@ -321,26 +321,24 @@ public class avsTest {
             // 结果输出excel需要的
             List<String> row = CollUtil.newArrayList();
 
-//            for (int i = 1; i <= 20; i++) {
-//                // 12.30 结果中 topK k=10，20，...，200
-//                List<String> topList = urlList.subList(0, i * 10);
-//
-//                double score = getScore(topList, query);// 获得topList的avs得分
-//                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
-//                row.add(String.valueOf(score2));
-//            }
-//
-//            for (int i = 3; i <= 20; i++) {
-//                // 12.30 结果中 topK k=300，400，...，2000
-//                List<String> topList = urlList.subList(0, i * 100);
-//
-//                double score = getScore(topList, query);// 获得topList的avs得分
-//                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
-//                row.add(String.valueOf(score2));
-//            }
+            for (int i = 1; i <= 20; i++) {
+                // 12.30 结果中 topK k=10，20，...，200
+                List<String> topList = urlList.subList(0, i * 10);
 
-            String[] strings = likeShotsMap.get(query);
-            double score = getScore(Arrays.asList(strings), query);
+                double score = getScore(topList, query);// 获得topList的avs得分
+                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
+                row.add(String.valueOf(score2));
+            }
+
+            for (int i = 3; i <= 20; i++) {
+                // 12.30 结果中 topK k=300，400，...，2000
+                List<String> topList = urlList.subList(0, i * 100);
+
+                double score = getScore(topList, query);// 获得topList的avs得分
+                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
+                row.add(String.valueOf(score2));
+            }
+
 
             rows.add(row);// 结果输出excel需要的
 
@@ -456,15 +454,15 @@ public class avsTest {
 
         }
 
-//        System.out.println(rows);
-//        // 结果输出excel 需要修改路径
-//        //通过工具类创建writer
-//        ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
-//
-//        //一次性写出内容
-//        writer.write(rows, true);
-//        //关闭writer，释放内存
-//        writer.close();
+        System.out.println(rows);
+        // 结果输出excel 需要修改路径
+        //通过工具类创建writer
+        ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
+
+        //一次性写出内容
+        writer.write(rows, true);
+        //关闭writer，释放内存
+        writer.close();
 
     }
 
@@ -478,13 +476,13 @@ public class avsTest {
      */
     public double getScore(List<String> urlList, int query) {
 
-        //
+        // 根据query_id获取avsGrandTruths 即query对应的gt avsGrandTruths的具体结果见类AvsGrandTruth
         Map<String, Object> selectByQueryMap = new HashMap<>();
         selectByQueryMap.put("query_id", query);
         List<AvsGrandTruth> avsGrandTruths = avsGrandTruthMapper.selectByMap(selectByQueryMap);
 
+        // videoId < 7476 即V3C1的gt
         List<AvsGrandTruth> queryGrandTruths = new ArrayList<>();
-
         for (AvsGrandTruth avsGrandTruth : avsGrandTruths) {
             if (Integer.parseInt(avsGrandTruth.getVideoId()) < 7476) {
                 queryGrandTruths.add(avsGrandTruth);
@@ -494,6 +492,8 @@ public class avsTest {
 
         Map<String, List<String>> videoShotMap = new HashMap<>(); //(videoId, shotsList)键值对
 
+        // 得到排序列表的 videoShotMap 即根据 videoId 将排序列表分成若干个list
+        // 比如(00001, ["shot00001_1", "shot00001_2"]), (00005, ["shot00005_10", "shot00005_20"])
         for (String shot : urlList) {
             String videoId = shot.substring(4, 9);
             if (videoShotMap.get(videoId) == null) {
@@ -507,54 +507,79 @@ public class avsTest {
             }
         }
 
+        // 评分指标参数设置
         double p = 0.1;
         countAllTeam = 200;
+
+        // 得分
         double sum = 0.0;
 
-        Set<String> gtSet = new HashSet<>();
-
+        // 遍历 videoShotMap 中的每个videoId
         for (String videoId : videoShotMap.keySet()) {
+
+            // videoId对应的shotsList
+            // 比如videoId = 00001    shotsList = ["shot00001_1", "shot00001_2"]
             List<String> shotsList = videoShotMap.get(videoId);
+
+            // flag1 判断此videoId的shotsList里是否存在符合gt的shot 0不存在 1存在
             int flag1 = 0;
+
+            // 到符合gt的shot为止 不正确的shot数量
             int incorrectCount = 0;
+
+            // 遍历此videoId对应的shotsList
             for (String shot : shotsList) {
+
+                // 得到shotId 比如shot00001_155的shotId=155
                 int shotId = Integer.parseInt(shot.substring(10)) - 1;
-                if (shotId > 100) {
-                    shotId -= 1;
-                }
+
+                // 得到videoId对应的镜头边界映射文件msbByVideoId
                 List<MasterShotBoundary> msbByVideoId = msbMap.get(videoId);
                 if (msbByVideoId == null) {
                     continue;
                 }
+
+                // 得到此shot的startTime和endTime, frameTime为中间时刻
                 double startTime = Double.parseDouble(msbByVideoId.get(shotId).getStartTime()) * 1000;
                 double endTime = Double.parseDouble(msbByVideoId.get(shotId).getEndTime()) * 1000;
-                double frameTime = startTime + endTime;
+                double frameTime = (startTime + endTime) / 2;
 
+                // flag2判断此shot是否符合gt 0不符合 1符合
                 int flag2 = 0;
+
+                // 遍历此query的gt
                 for (AvsGrandTruth avsGrandTruth : queryGrandTruths) {
+
+                    //得到gt的起止时间
                     double gtStartTime = Double.parseDouble(avsGrandTruth.getStartTime());
                     double gtEndTime = Double.parseDouble(avsGrandTruth.getEndTime());
-                    if (Objects.equals(avsGrandTruth.getVideoId(), videoId) && ((frameTime > gtStartTime - 10000) && (frameTime < gtEndTime + 10000))) {
+
+                    // 如果gt的videoId和此shot的videoId相同 且frameTime在gt起止时间的±5s内 则认为此shot符合gt
+                    if (Objects.equals(avsGrandTruth.getVideoId(), videoId) && ((frameTime > gtStartTime - 5000) && (frameTime < gtEndTime + 5000))) {
+
+                        // flag2判断此shot是否符合gt 0不符合 1符合
                         flag2 = 1;
-                        gtSet.add(shot);
-                        // break;
+                        // 若符合gt则不需要再遍历gt 直接退出遍历gt的循环
+                        break;
                     }
                 }
+
+                // 如果此shot符合gt 则flag1(判断此videoId的shotsList里是否存在符合gt的shot)置1
                 if (flag2 == 1) {
+                    // flag1 0不存在 1存在
                     flag1 = 1;
-                    // break;
+
+                    // 此shot符合gt 直接退出循环 后面的shot不用再计算了
+                    break;
                 } else {
+                    // 此shot不符合gt incorrectCount+1
                     incorrectCount++;
                 }
             }
 
+            // flag1 判断此videoId的shotsList里是否存在符合gt的shot
             sum = sum + (flag1 - incorrectCount * p);
         }
-
-        for (String s : gtSet) {
-            System.out.print("\"" + s + "\"" + ", ");
-        }
-        System.out.println();
 
         sum = 1000 * sum / countAllTeam;
         return sum;

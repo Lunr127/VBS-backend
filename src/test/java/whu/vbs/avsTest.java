@@ -70,6 +70,14 @@ public class avsTest {
         likeShotsMap.put(5, new String[]{"shot05611_186", "shot02236_2", "shot01492_125", "shot05611_112", "shot06678_33", "shot05611_193", "shot05611_187", "shot05611_145", "shot02281_81", "shot04001_106", "shot05369_184", "shot05611_176", "shot07314_95", "shot06375_2", "shot05611_185", "shot06678_34", "shot02561_128", "shot05611_110", "shot02519_91", "shot01940_25", "shot05519_19", "shot05611_194", "shot05611_56", "shot00045_442", "shot06678_26", "shot01877_11", "shot02561_455", "shot02281_84", "shot00443_48", "shot01877_17", "shot05611_48", "shot06678_30", "shot05369_185", "shot06678_31", "shot04757_103", "shot02519_92", "shot06678_29", "shot01877_3", "shot02236_1", "shot07314_90", "shot05611_46", "shot06944_123", "shot02609_223", "shot04246_61", "shot02561_456", "shot07244_188", "shot01877_5", "shot02030_61", "shot01877_4", "shot06944_579", "shot07142_12", "shot00443_47", "shot01877_6", "shot06944_83", "shot05611_178", "shot01877_9", "shot06375_3", "shot06944_125", "shot07142_10", "shot04251_7", "shot06678_32", "shot01877_18", "shot07142_11", "shot06944_127", "shot04246_60", "shot01182_26", "shot04757_102", "shot05611_111", "shot04246_62", "shot05611_66", "shot01877_19", "shot01877_12", "shot04001_107", "shot06678_28", "shot04246_63", "shot00443_50", "shot06678_25", "shot01877_13"});
         likeShotsMap.put(6, new String[]{"shot03077_146", "shot02808_148", "shot03894_38", "shot06815_52", "shot03077_143", "shot03077_144", "shot03077_147", "shot02808_142", "shot02808_141", "shot03077_67", "shot03894_61", "shot06815_89", "shot03894_39", "shot06815_83", "shot06815_108", "shot06815_107", "shot02808_130", "shot06815_141", "shot07309_237", "shot06815_88", "shot02808_85", "shot03795_47", "shot03077_138", "shot06815_86", "shot03894_35", "shot06815_157", "shot03077_137", "shot06815_85", "shot06815_84", "shot02808_147", "shot03077_68", "shot03894_9", "shot06815_149", "shot06815_97", "shot02808_128", "shot03894_8", "shot06815_116", "shot04490_73", "shot06815_130", "shot02808_72", "shot06815_156", "shot03894_10", "shot03077_66", "shot06815_144", "shot02808_117", "shot03894_124", "shot06815_118", "shot03894_67", "shot03894_70", "shot06815_148", "shot06815_158", "shot03077_45", "shot06815_51", "shot06815_6", "shot02808_110", "shot06815_102", "shot06815_32", "shot02808_145", "shot05605_350", "shot07309_242", "shot06815_164", "shot03894_55", "shot02932_619", "shot03894_26", "shot06815_122", "shot06815_136", "shot06815_137", "shot03077_63", "shot03077_58", "shot06815_113", "shot03077_46", "shot06815_114", "shot03894_23", "shot03077_130", "shot03894_101", "shot06815_117", "shot03894_21", "shot02932_618", "shot06815_94", "shot03077_44", "shot06815_131", "shot02808_132", "shot07309_241", "shot03894_27", "shot03894_63", "shot03894_24", "shot06815_31", "shot03894_52", "shot06815_139", "shot06815_140", "shot03894_36", "shot03077_52", "shot03894_51", "shot06815_143", "shot03894_100", "shot03077_43", "shot03077_60", "shot02027_83", "shot02027_45", "shot06815_105", "shot03894_88", "shot06815_104", "shot07309_228", "shot06815_80", "shot06815_159", "shot02808_89"});
         likeShotsMap.put(10, new String[]{"shot02285_9", "shot06195_4", "shot02645_97", "shot01559_92", "shot00668_16", "shot02763_184", "shot04052_50", "shot06007_158", "shot06007_163", "shot06007_513", "shot06007_80", "shot06188_306", "shot05522_39", "shot03719_28", "shot02934_87", "shot05133_34", "shot05734_178", "shot01559_7", "shot04979_20", "shot00481_46", "shot07389_29", "shot04979_21", "shot05522_46", "shot02957_295", "shot05734_179", "shot04175_15", "shot03011_313", "shot06523_192", "shot00172_43", "shot02285_7", "shot00172_40", "shot00172_39", "shot06007_510", "shot05195_139", "shot01577_116", "shot05795_72", "shot03913_30", "shot02763_75", "shot02763_76", "shot04096_425", "shot02075_65", "shot03204_51", "shot00317_271", "shot06188_304", "shot00481_48", "shot06188_135", "shot06007_293", "shot04780_664", "shot03719_111", "shot06007_511", "shot06188_305", "shot03921_29", "shot04123_26", "shot05522_85", "shot01657_108", "shot06188_136", "shot05587_148", "shot06188_471", "shot05522_72", "shot02143_78", "shot02381_146", "shot06868_94", "shot01366_35", "shot07389_412", "shot06007_118", "shot06007_111", "shot05297_75", "shot03591_57", "shot06835_103", "shot02763_83", "shot03203_89", "shot05047_123", "shot06852_59", "shot00194_19", "shot03825_94", "shot01577_119", "shot02763_84", "shot05047_46", "shot02645_87", "shot00172_51", "shot06007_167", "shot00296_25", "shot04123_28", "shot06007_169", "shot01577_117", "shot03138_174", "shot02381_159", "shot05522_80", "shot01468_74", "shot03719_113", "shot02381_163", "shot06523_118", "shot04123_27", "shot06067_911", "shot03675_40", "shot06007_195", "shot02381_126", "shot06007_196", "shot06452_82", "shot06007_153", "shot00528_190", "shot02934_88", "shot00296_27", "shot03415_13", "shot06007_82", "shot02381_39", "shot03011_315", "shot04780_665", "shot06188_113", "shot06007_112", "shot02381_151", "shot03011_317", "shot04096_239", "shot01778_93", "shot06809_778", "shot06217_19", "shot05781_76", "shot03724_168", "shot02983_20", "shot04096_257"});
+
+//        likeShotsMap.put(1, new String[]{"shot00148_38", "shot00148_39", "shot00148_40", "shot00148_41", "shot04804_344", "shot06611_93", "shot00148_42", "shot00148_43", "shot00148_45", "shot02770_5", "shot04804_635", "shot03900_146", "shot00602_8"});
+//        likeShotsMap.put(2, new String[]{"shot06767_22", "shot07049_4", "shot07049_3", "shot07049_5", "shot07435_41", "shot00072_23", "shot00915_49", "shot07435_34", "shot07435_33", "shot07435_32", "shot07435_42", "shot07435_37"});
+//        likeShotsMap.put(4, new String[]{"shot04777_27", "shot04551_18", "shot04551_19", "shot04966_7", "shot05543_39", "shot04551_7", "shot04551_10", "shot04423_295", "shot04551_8", "shot04777_22"});
+//        likeShotsMap.put(5, new String[]{"shot04246_62", "shot02236_2", "shot04246_61", "shot04246_63", "shot06375_2", "shot06375_3", "shot04246_60", "shot02236_1", "shot05611_46", "shot06944_123", "shot05611_56", "shot05611_48"});
+//        likeShotsMap.put(6, new String[]{"shot03894_8", "shot06815_83", "shot06815_84", "shot06815_80", "shot06815_52", "shot03894_63", "shot06815_97", "shot06815_31", "shot02808_85", "shot06815_32", "shot03894_61", "shot03894_9", "shot03894_67", "shot03894_23", "shot03894_24", "shot03894_21", "shot03894_27", "shot03077_58", "shot03894_26", "shot06815_94", "shot06815_51", "shot06815_89", "shot06815_85", "shot03894_52", "shot06815_86", "shot03077_60", "shot06815_88", "shot03894_51", "shot02808_72", "shot03077_63", "shot03894_35", "shot03894_10", "shot03894_55", "shot03077_66", "shot03894_38", "shot03077_67", "shot03894_39", "shot03077_68", "shot03894_36"});
+//        likeShotsMap.put(10, new String[]{"shot06007_80", "shot06007_118", "shot06007_82", "shot02763_75", "shot02763_76", "shot04123_26", "shot06523_118", "shot03719_28", "shot04123_28", "shot04123_27", "shot05522_39", "shot06007_112", "shot06007_111"});
+//
     }
 
 
@@ -286,10 +294,10 @@ public class avsTest {
 
             // qir重排 也暂时有点问题 反馈样本各选了前5个先 （bug已修复 反馈各50个）
             // 使用qir，需要到qir方法里，修改qir.py文件路径
-            List<String> likeShots = Arrays.asList(likeShotsMap.get(query)).subList(0, 25);
-            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query)).subList(0, 25);
-            qir(likeShots, 0);
-            qir(notLikeShots, 1);
+//            List<String> likeShots = Arrays.asList(likeShotsMap.get(query)).subList(0, 25);
+//            List<String> notLikeShots = Arrays.asList(notLikeShotsMap.get(query)).subList(0, 25);
+//            qir(likeShots, 0);
+//            qir(notLikeShots, 1);
 
 
             // cvts重排
@@ -297,10 +305,10 @@ public class avsTest {
 //            cvts(likeShots, queryVectorList);
 
 
-            // 重排后得分归一化
-            VectorUtil.mapNormalization(scoreMap);
-            // 将（路径，得分）的键值对按得分降序
-            sortMap = VectorUtil.sortMapByValues(scoreMap);
+//            // 重排后得分归一化
+//            VectorUtil.mapNormalization(scoreMap);
+//            // 将（路径，得分）的键值对按得分降序
+//            sortMap = VectorUtil.sortMapByValues(scoreMap);
 
 
             List<String> urlList = new ArrayList<>();//查询结果的路径
@@ -313,23 +321,26 @@ public class avsTest {
             // 结果输出excel需要的
             List<String> row = CollUtil.newArrayList();
 
-            for (int i = 1; i <= 20; i++) {
-                // 12.30 结果中 topK k=10，20，...，200
-                List<String> topList = urlList.subList(0, i * 10);
+//            for (int i = 1; i <= 20; i++) {
+//                // 12.30 结果中 topK k=10，20，...，200
+//                List<String> topList = urlList.subList(0, i * 10);
+//
+//                double score = getScore(topList, query);// 获得topList的avs得分
+//                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
+//                row.add(String.valueOf(score2));
+//            }
+//
+//            for (int i = 3; i <= 20; i++) {
+//                // 12.30 结果中 topK k=300，400，...，2000
+//                List<String> topList = urlList.subList(0, i * 100);
+//
+//                double score = getScore(topList, query);// 获得topList的avs得分
+//                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
+//                row.add(String.valueOf(score2));
+//            }
 
-                double score = getScore(topList, query);// 获得topList的avs得分
-                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
-                row.add(String.valueOf(score2));
-            }
-
-            for (int i = 3; i <= 20; i++) {
-                // 12.30 结果中 topK k=300，400，...，2000
-                List<String> topList = urlList.subList(0, i * 100);
-
-                double score = getScore(topList, query);// 获得topList的avs得分
-                double score2 = (double) Math.round(score * 100) / 100;// 保留两位小数
-                row.add(String.valueOf(score2));
-            }
+            String[] strings = likeShotsMap.get(query);
+            double score = getScore(Arrays.asList(strings), query);
 
             rows.add(row);// 结果输出excel需要的
 
@@ -445,15 +456,15 @@ public class avsTest {
 
         }
 
-        System.out.println(rows);
-        // 结果输出excel 需要修改路径
-        //通过工具类创建writer
-        ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
-
-        //一次性写出内容
-        writer.write(rows, true);
-        //关闭writer，释放内存
-        writer.close();
+//        System.out.println(rows);
+//        // 结果输出excel 需要修改路径
+//        //通过工具类创建writer
+//        ExcelWriter writer = ExcelUtil.getWriter("C:\\Users\\Lunr\\Desktop\\result1230.xlsx");
+//
+//        //一次性写出内容
+//        writer.write(rows, true);
+//        //关闭writer，释放内存
+//        writer.close();
 
     }
 
@@ -466,6 +477,8 @@ public class avsTest {
      * @return
      */
     public double getScore(List<String> urlList, int query) {
+
+        //
         Map<String, Object> selectByQueryMap = new HashMap<>();
         selectByQueryMap.put("query_id", query);
         List<AvsGrandTruth> avsGrandTruths = avsGrandTruthMapper.selectByMap(selectByQueryMap);
@@ -498,6 +511,8 @@ public class avsTest {
         countAllTeam = 200;
         double sum = 0.0;
 
+        Set<String> gtSet = new HashSet<>();
+
         for (String videoId : videoShotMap.keySet()) {
             List<String> shotsList = videoShotMap.get(videoId);
             int flag1 = 0;
@@ -513,31 +528,33 @@ public class avsTest {
                 }
                 double startTime = Double.parseDouble(msbByVideoId.get(shotId).getStartTime()) * 1000;
                 double endTime = Double.parseDouble(msbByVideoId.get(shotId).getEndTime()) * 1000;
+                double frameTime = startTime + endTime;
 
                 int flag2 = 0;
                 for (AvsGrandTruth avsGrandTruth : queryGrandTruths) {
                     double gtStartTime = Double.parseDouble(avsGrandTruth.getStartTime());
                     double gtEndTime = Double.parseDouble(avsGrandTruth.getEndTime());
-                    if (Objects.equals(avsGrandTruth.getVideoId(), videoId) &&
-                            ((gtStartTime > startTime - 2000) || (gtStartTime < startTime + 2000)) &&
-                            ((gtEndTime > endTime - 2000) || (gtEndTime < endTime + 2000))) {
+                    if (Objects.equals(avsGrandTruth.getVideoId(), videoId) && ((frameTime > gtStartTime - 10000) && (frameTime < gtEndTime + 10000))) {
                         flag2 = 1;
-                        break;
+                        gtSet.add(shot);
+                        // break;
                     }
                 }
-                if (flag2 == 0) {
-                    incorrectCount++;
-                } else {
+                if (flag2 == 1) {
                     flag1 = 1;
-                    break;
+                    // break;
+                } else {
+                    incorrectCount++;
                 }
             }
-            if (flag1 == 0) {
-                sum = sum + (0 - incorrectCount * p);
-            } else {
-                sum = sum + (1 - incorrectCount * p);
-            }
+
+            sum = sum + (flag1 - incorrectCount * p);
         }
+
+        for (String s : gtSet) {
+            System.out.print("\"" + s + "\"" + ", ");
+        }
+        System.out.println();
 
         sum = 1000 * sum / countAllTeam;
         return sum;

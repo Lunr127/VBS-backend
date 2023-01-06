@@ -8,6 +8,7 @@ import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -643,6 +644,74 @@ public class avsTest {
         count = avsGrandTruthSet.size();
 
         return count;
+    }
+
+
+    @Test
+    void gtJudge() {
+
+        // 需要修改query编号
+        int query = 1;
+
+        // 根据query_id获取avsGrandTruths 即query对应的gt avsGrandTruths的具体结果见类AvsGrandTruth
+        Map<String, Object> selectByQueryMap = new HashMap<>();
+        selectByQueryMap.put("query_id", query);
+        List<AvsGrandTruth> avsGrandTruths = avsGrandTruthMapper.selectByMap(selectByQueryMap);
+
+        // videoId < 7476 即V3C1的gt
+        List<AvsGrandTruth> queryGrandTruths = new ArrayList<>();
+        for (AvsGrandTruth avsGrandTruth : avsGrandTruths) {
+            if (Integer.parseInt(avsGrandTruth.getVideoId()) < 7476) {
+                queryGrandTruths.add(avsGrandTruth);
+            }
+        }
+
+        // list中符合gt的shot
+        List<String> gtMatchList = new ArrayList<>();
+
+        // 需要修改判断的list
+        // String[] shots = new String[]{"shot02024_72", "shot02684_21", "shot04804_903", "shot06037_108", "shot04892_80", "shot04804_773", "shot05511_5", "shot00654_364", "shot05511_4", "shot04804_744", "shot02684_46", "shot05368_95", "shot07466_39", "shot02426_40", "shot02347_23", "shot01617_145", "shot01386_104", "shot01880_20", "shot06248_323", "shot01172_163", "shot03319_668", "shot03319_716", "shot02347_16", "shot05511_8", "shot04804_1328", "shot06077_4"};
+        String[] shots = new String[]{"shot04804_635", "shot04804_1075", "shot04804_1321", "shot00956_15", "shot00151_87", "shot07466_11", "shot04804_896", "shot01172_285", "shot04804_820", "shot01172_62", "shot04804_957", "shot04804_344", "shot00602_129", "shot00602_37", "shot00298_90", "shot04804_907", "shot01172_183", "shot06522_48", "shot06624_32", "shot00602_148", "shot04804_488", "shot03169_107", "shot04804_506", "shot01090_427", "shot00148_38", "shot00487_107", "shot04804_944", "shot03918_623", "shot03699_3", "shot04804_197", "shot00290_25", "shot02960_89", "shot04867_488", "shot00602_133", "shot03699_2", "shot07420_22", "shot07420_16", "shot02061_18", "shot00148_42", "shot00148_41", "shot03319_151", "shot06566_163", "shot01253_91", "shot03699_1", "shot00148_39", "shot06248_56", "shot04804_945", "shot01253_93", "shot00148_52", "shot04804_1379", "shot05200_155", "shot04255_3", "shot04804_821", "shot00148_43", "shot01071_255", "shot04804_715", "shot00602_86", "shot04804_974", "shot00148_45", "shot04989_99", "shot00602_117", "shot04695_135", "shot00602_134", "shot01253_35", "shot06533_278", "shot04804_251", "shot00193_305", "shot05469_2", "shot02826_100", "shot03699_4", "shot04804_595", "shot00218_88", "shot02347_30", "shot04619_195", "shot00151_89", "shot00218_91", "shot04804_643", "shot04804_1238", "shot05358_16", "shot02684_122", "shot03900_146", "shot01253_99", "shot01843_96", "shot06248_107", "shot03900_226", "shot06624_25", "shot01333_124", "shot03279_18", "shot04299_15", "shot00218_12", "shot06288_19", "shot04867_484", "shot01090_175", "shot06827_365", "shot06624_28", "shot01090_663", "shot04989_247", "shot05246_228", "shot06248_57", "shot00148_40", "shot04804_280", "shot07412_39", "shot06248_454", "shot04464_21", "shot06852_2", "shot06674_68", "shot00148_116", "shot01849_177", "shot01420_211", "shot04804_1221", "shot02347_28", "shot00602_8", "shot06611_93", "shot06611_105", "shot00218_16", "shot00193_335", "shot02061_7", "shot03918_624", "shot02347_38", "shot06248_462", "shot07257_84", "shot03279_75", "shot00602_36", "shot06624_39", "shot06288_18", "shot06869_51", "shot06325_88", "shot01498_34", "shot02061_9", "shot06808_162", "shot02770_5", "shot06611_18", "shot03817_47"};
+
+        // String[] shots = new String[]{"shot00148_38", "shot00148_39", "shot00148_40", "shot00148_41", "shot04804_344", "shot06611_93", "shot00148_42", "shot00148_43", "shot00148_45", "shot02770_5", "shot04804_635", "shot03900_146", "shot00602_8"};
+
+        for (String shot : shots) {
+            String videoId = shot.substring(4, 9);
+            String shotId = shot.substring(shot.indexOf("_") + 1);
+            QueryWrapper<MasterShotBoundary> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("video_id", videoId);
+            List<MasterShotBoundary> boundaryList = msbMapper.selectList(queryWrapper);
+
+            MasterShotBoundary boundary = boundaryList.get(Integer.parseInt(shotId) - 1);
+            Double startTime = Double.parseDouble(boundary.getStartTime()) * 1000;
+            Double endTime = Double.parseDouble(boundary.getEndTime()) * 1000;
+            double frameTime = (startTime + endTime) / 2;
+
+            int flag2 = 0;
+            // 遍历此query的gt
+            for (AvsGrandTruth avsGrandTruth : queryGrandTruths) {
+
+                //得到gt的起止时间
+                double gtStartTime = Double.parseDouble(avsGrandTruth.getStartTime());
+                double gtEndTime = Double.parseDouble(avsGrandTruth.getEndTime());
+
+                // 如果gt的videoId和此shot的videoId相同 且frameTime在gt起止时间的±5s内 则认为此shot符合gt
+                if (Objects.equals(avsGrandTruth.getVideoId(), videoId) && ((frameTime > gtStartTime - 10000) && (frameTime < gtEndTime + 10000))) {
+
+                    // flag2判断此shot是否符合gt 0不符合 1符合
+                    flag2 = 1;
+                    // 若符合gt则不需要再遍历gt 直接退出遍历gt的循环
+                    break;
+                }
+            }
+
+            if (flag2 == 1) {
+                gtMatchList.add(shot);
+            }
+        }
+
+        // gtMatchList为list中符合gt的shot
+        System.out.println(gtMatchList);
     }
 
 

@@ -62,11 +62,11 @@ public class marineTest {
         }
 
         // 得到测试图片的向量
-        String imagePath = "image_path";
+        String imagePath = "C:/Users/Lunr/Desktop/marine_image/test2.png";
         List<Double> imageVector = getImageVector(imagePath);
 
         // 对每个在库帧 得到与查询图片的特征相似度
-        for (String shot: marineVectorMap.keySet()){
+        for (String shot : marineVectorMap.keySet()) {
             pathList.add(shot);
 
             List<Double> vector = marineVectorMap.get(shot);
@@ -92,15 +92,16 @@ public class marineTest {
         savePathToUrlList(urlList, sortMap);
 
         // 具体怎么测试还要考虑
-        System.out.println(urlList);
+        System.out.println(urlList.subList(0, 20));
 
-//        // 获取帧对应的时间示例
-//        String time = "";
-//        for (MarineFrameBoundary marineFrameBoundary : marineFrameBoundaryList) {
-//            if (Objects.equals(marineFrameBoundary.getFrameId(), "Ambon_Apr2012_0001_1")){
-//                time = marineFrameBoundary.getTime();
-//            }
-//        }
+        // 获取帧对应的时间示例
+        String time = "";
+        for (MarineFrameBoundary marineFrameBoundary : marineFrameBoundaryList) {
+            if (Objects.equals(marineFrameBoundary.getFrameId(), urlList.get(0))) {
+                time = marineFrameBoundary.getTime();
+            }
+        }
+        System.out.println(time);
 
     }
 

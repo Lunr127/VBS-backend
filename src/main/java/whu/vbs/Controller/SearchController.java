@@ -4,8 +4,11 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import whu.vbs.Service.AvsService;
+import whu.vbs.Service.KisvService;
 import whu.vbs.Service.VectorService;
+import whu.vbs.utils.MultipartFileToFile;
 import whu.vbs.utils.PathUtils;
 
 import java.util.*;
@@ -78,6 +81,9 @@ public class SearchController {
     VectorService vectorService;
 
     @Autowired
+    KisvService kisvService;
+
+    @Autowired
     AvsService avsService;
 
     @RequestMapping(
@@ -91,6 +97,10 @@ public class SearchController {
         String radioSelect = jsonObject.getStr("radioSelect");
         System.out.println(textInput);
         System.out.println(radioSelect);
+
+        if (Integer.parseInt(radioSelect) == 2){
+            return JSONUtil.toJsonStr(kisvService.getInitTopK(Integer.parseInt(textInput)));
+        }
 
 
 //        setQueryMap();
@@ -120,19 +130,56 @@ public class SearchController {
 
 
         List<String> LikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("LikePaths"));
-//        System.out.println("LikePaths = " + LikePaths);
-//        for (String likePath : LikePaths) {
-//            System.out.print("\"" + likePath + "\"" + ", ");
-//        }
-//        System.out.println();
+        System.out.println("LikePaths = " + LikePaths);
+        for (String likePath : LikePaths) {
+            System.out.print("\"" + likePath + "\"" + ", ");
+        }
+        System.out.println();
         List<String> NotLikePaths = PathUtils.handlePathsFromWeb(jsonObject.getStr("NotLikePaths"));
-//        System.out.println("NotLikePaths = " + NotLikePaths);
-//        for (String notLikePath : NotLikePaths) {
-//            System.out.print("\"" + notLikePath + "\"" + ", ");
-//        }
-//        System.out.println();
+        System.out.println("NotLikePaths = " + NotLikePaths);
+        for (String notLikePath : NotLikePaths) {
+            System.out.print("\"" + notLikePath + "\"" + ", ");
+        }
+        System.out.println();
 
         return JSONUtil.toJsonStr(avsService.reRank(LikePaths, NotLikePaths));
     }
+
+    @RequestMapping(
+            value = "/image",
+            method = RequestMethod.POST
+    )
+    @ResponseBody
+    public void image(MultipartFile file) {
+        System.out.println(MultipartFileToFile.saveMultipartFile(file, "C:\\Users\\Lunr\\Desktop\\image"));
+    }
+
+
+    @RequestMapping(
+            value = "/showVideoShot",
+            method = RequestMethod.POST
+    )
+    @ResponseBody
+    public String showVideoShot(@RequestBody String request) {
+        JSONObject jsonObject = JSONUtil.parseObj(request);
+        String shot = jsonObject.getStr("shot");
+        System.out.println(shot);
+
+        return JSONUtil.toJsonStr(kisvService.showVideoByShot(shot));
+    }
+
+    @RequestMapping(
+            value = "/submit",
+            method = RequestMethod.POST
+    )
+    @ResponseBody
+    public String submit(@RequestBody String request) {
+        JSONObject jsonObject = JSONUtil.parseObj(request);
+        String submitUrls = jsonObject.getStr("submitUrls");
+        System.out.println(submitUrls);
+
+        return JSONUtil.toJsonStr(submitUrls);
+    }
+
 
 }

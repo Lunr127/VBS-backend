@@ -11,6 +11,7 @@ public class VectorUtil {
         int length = str.length();
         str = str.substring(sub, length - sub);
         ArrayList<String> strings = new ArrayList<>(Arrays.asList(str.split("\\s+")));
+        strings.remove("]]");
         ArrayList<Double> doubleArrayList = new ArrayList<>(Arrays.asList(Convert.toDoubleArray(strings)));
         if (doubleArrayList.get(0) == null) {
             doubleArrayList.remove(0);

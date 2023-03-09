@@ -3,9 +3,7 @@ package whu.vbs;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.text.csv.CsvReader;
-import cn.hutool.core.text.csv.CsvUtil;
-import cn.hutool.core.text.csv.CsvWriter;
+import cn.hutool.core.text.csv.*;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -16,10 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import whu.vbs.Entity.ClassificationShots;
 import whu.vbs.Entity.CsvFile.*;
 import whu.vbs.Entity.VectorResult;
-import whu.vbs.Mapper.ClassificationShotsMapper;
-import whu.vbs.Mapper.MarineFrameBoundaryMapper;
-import whu.vbs.Mapper.VectorMapper;
-import whu.vbs.Mapper.VideoDescriptionVectorMapper;
+import whu.vbs.Mapper.*;
 import whu.vbs.utils.VectorUtil;
 
 import java.io.File;
@@ -285,6 +280,29 @@ public class csvTest {
 
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @Autowired
+    ImageFilterMapper imageFilterMapper;
+    @Test
+    void imageFilter(){
+        CsvReader reader = CsvUtil.getReader();
+//从文件中读取CSV数据
+        CsvData data = reader.read(FileUtil.file("E:\\Git\\lavis2\\imageFilter\\info.csv"));
+        List<CsvRow> rows = data.getRows();
+//遍历行
+        for (CsvRow csvRow : rows) {
+            //getRawList返回一个List列表，列表的每一项为CSV中的一个单元格（既逗号分隔部分）
+            String shot = csvRow.getRawList().get(0);
+            int begin = shot.indexOf("_");
+            int end = shot.indexOf(".");
+            shot = shot.substring(begin - 9, end);
+            System.out.println(shot);
+            ImageFilter imageFilter = new ImageFilter();
+            imageFilter.setShot(shot);
+            imageFilterMapper.insert(imageFilter);
         }
     }
 

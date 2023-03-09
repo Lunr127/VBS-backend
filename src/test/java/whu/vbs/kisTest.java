@@ -1,5 +1,6 @@
 package whu.vbs;
 
+import cn.hutool.core.io.file.FileReader;
 import cn.hutool.core.io.resource.ResourceUtil;
 import cn.hutool.core.text.csv.CsvReader;
 import cn.hutool.core.text.csv.CsvUtil;
@@ -381,7 +382,7 @@ public class kisTest {
      */
     @Test
     void getImageVector() {
-        String imagePath = "C:/Users/Lunr/Desktop/image/06040_1.png";
+        String imagePath = "C:/Users/Lunr/Desktop/kis22-image/15998_1.png";
 
 
         //调用 python 函数得到图片的特征向量
@@ -422,4 +423,19 @@ public class kisTest {
         return strVector.toString();
     }
 
+
+    @Test
+    public void queryTest(){
+        FileReader fileReader = new FileReader("D:\\Download\\VBSDataset\\VBS_task\\Init_top10000\\query.txt");
+        String result = fileReader.readString();
+        System.out.println(result);
+        System.out.println(VectorUtil.strToDouble(result, 2));
+
+        CsvReader reader = CsvUtil.getReader();
+        String csvPath = "D:\\Download\\VBSDataset\\VBS_task\\Init_top10000\\init.csv";
+        List<GrandTruthResult> init = reader.read(ResourceUtil.getUtf8Reader(csvPath), GrandTruthResult.class);
+        System.out.println(init);
+
+
+    }
 }

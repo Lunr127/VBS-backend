@@ -117,6 +117,16 @@ public class marineTest {
         return imageVectorList;
     }
 
+    @Test
+    void imageVectorTest(){
+        String imagePath = "D:/Download/VBSDataset/VBS_task/kis-v/query.png";
+        //调用 python 函数得到图片的特征向量
+        String[] args1 = new String[]{"E:\\Git\\lavis2\\venv\\Scripts\\python.exe", "E:\\Git\\lavis2\\imageExtractor.py", imagePath};
+        String imageVector = runPython(args1);
+        List<Double> imageVectorList = VectorUtil.imageStrToDouble(imageVector);
+        System.out.println(imageVectorList);
+    }
+
     public String runPython(String[] args) {
         StringBuilder strVector = new StringBuilder();
         //调用 python 函数

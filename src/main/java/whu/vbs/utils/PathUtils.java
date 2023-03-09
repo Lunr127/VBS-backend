@@ -90,4 +90,50 @@ public class PathUtils {
         Base64.Encoder encoder = Base64.getEncoder();
         return encoder.encodeToString(data);
     }
+
+    public static List<Map<String, String>> marineUrlToBase64List(List<String> urlList, int showTopK){
+        List<Map<String, String>> base64List = new ArrayList<>();
+        for (String shot : urlList.subList(0, showTopK)) {
+            Map<String, String> base64Map = new HashMap<>();// (base64，路径)键值对
+
+            String path = "F:\\VBSDataset\\Marine_thumbnails\\";
+            String[] shotSplit = shot.split("_");
+            path = path + shotSplit[0] + "_" + shotSplit[1] + "\\" + shotSplit[2] + "\\" + shotSplit[3] + ".jpg";
+
+            File file = new File(path);
+            if (!file.exists()){
+                continue;
+            }
+
+            String base64 = "data:image/png;base64," + marineImgToBase64(shot);
+            base64Map.put("shot", shot);
+            base64Map.put("base64", base64);
+            base64List.add(base64Map);
+        }
+        return base64List;
+    }
+
+    public static String marineImgToBase64(String shot) {
+        String path = "F:\\VBSDataset\\Marine_thumbnails\\";
+
+        // Ambon_Apr2012_0001_1
+        String[] shotSplit = shot.split("_");
+
+        path = path + shotSplit[0] + "_" + shotSplit[1] + "\\" + shotSplit[2] + "\\" + shotSplit[3] + ".jpg";
+
+        File file = new File(path);
+
+        byte[] data = null;
+        try {
+            InputStream in = Files.newInputStream(file.toPath());
+            data = new byte[in.available()];
+            in.read(data);
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(data);
+    }
 }
